@@ -2,8 +2,8 @@ import math
 import numpy as np
 import random 
 from math import log
-EPS = 1e-9
-DELTA = 1e-8
+EPS = 1e-6
+DELTA = 1e-5
 
 class MCTS():
     """
@@ -36,6 +36,8 @@ class MCTS():
         """
         
         for i in range(self.args.numMCTSSims):
+            
+            # import ipdb; ipdb.set_trace()   # for debugging
             self.search(canonicalBoard)
 
         s = self.game.stringRepresentation(canonicalBoard)
@@ -67,24 +69,24 @@ class MCTS():
 
         # calculating q values 
         
-        for a in range(self.game.getActionSize()):
-            if self.Vs[s][a]:
-                notconverged = True
-                p = max(self.QMeanSA[(s,a)],DELTA)
-                q = p + DELTA
-                i = 0
-                while(i<100 and notconverged ):
-                    i+=1
-                    kl = p * log(p/q) + (1-p)*log((1-p)/(1-q))
-                    # f = log(self.Ns[s])/self.Nsa[(s,a)] - kl
-                    f = log(self.Ns[s])/(1+self.Nsa[(s,a)]) - kl
-                    df = -(q-p)/(q*(1.0-q))
+        # for a in range(self.game.getActionSize()):
+        if self.Vs[s][a]:
+            notconverged = True
+            p = max(self.QMeanSA[(s,a)],DELTA)
+            q = p + DELTA
+            i = 0
+            while(i<100 and notconverged ):
+                i+=1
+                kl = p * log(p/q) + (1-p)*log((1-p)/(1-q))
+                # f = log(self.Ns[s])/self.Nsa[(s,a)] - kl
+                f = log(self.Ns[s])/(self.Nsa[(s,a)]) - kl
+                df = -(q-p)/(q*(1.0-q))
 
-                    if f*f <EPS :
-                        converged = False
-                        break
-                    q = min(1-DELTA, max(q-f/df,p+DELTA) )
-                self.Qmax[(s,a)] = q
+                if f*f <EPS :
+                    converged = False
+                    break
+                q = min(1-DELTA, max(q-f/df,p+DELTA) )
+            self.Qmax[(s,a)] = q
 
     def bestAction(self,s):
         """
@@ -95,7 +97,7 @@ class MCTS():
         """
 
         bestQ = -1e+10
-        bestA  = 0
+        bestA  = -1
 
         for a in range(self.game.getActionSize()):
 
@@ -164,7 +166,7 @@ class MCTS():
                     self.Qmax[(s,a)] = 0
                     self.QMeanSA[(s,a)] = 0
                     self.Nsa[(s,a)] = 0
-            self.Ns[s] = 0
+            self.Ns[s] = 1
             return -v
 
         a = self.bestAction(s)
