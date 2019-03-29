@@ -2,3 +2,4 @@ __pycache__
 *.pyc
 temp/
 a.txt
+losses_array.npy
