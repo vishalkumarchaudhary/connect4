@@ -71,6 +71,7 @@ class NNetWrapper(NeuralNet):
 
                 losses[0].append(pi_loss)
                 losses[1].append(v_loss)
+                batch_idx += 1
                 # measure elapsed time
                 batch_time.update(time.time() - end)
                 
