@@ -79,6 +79,7 @@ class Arena():
         draws = 0
         for _ in range(num):
             gameResult = self.playGame(verbose=verbose)
+            print(gameResult)
             if gameResult==1:
                 oneWon+=1
             elif gameResult==0:
