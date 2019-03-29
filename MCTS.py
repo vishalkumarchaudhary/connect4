@@ -1,7 +1,9 @@
 import math
 import numpy as np
 import random 
-EPS = 1e-8
+from math import log
+EPS = 1e-9
+DELTA = 1e-8
 
 class MCTS():
     """
@@ -12,14 +14,16 @@ class MCTS():
         self.game = game
         self.nnet = nnet
         self.args = args
-        self.Qsa = {}       # stores Q values for s,a (as defined in the paper)
+        
+        self.Qmax = {} 
+        self.QMeanSA = {}       # stores Q values for s,a (as defined in the paper)
         self.Nsa = {}       # stores #times edge s,a was visited
         self.Ns = {}        # stores #times board s was visited
         self.Ps = {}        # stores initial policy (returned by neural net)
 
         self.Es = {}        # stores game.getGameEnded ended for board s
         self.Vs = {}        # stores game.getValidMoves for board s
- 
+        
 
     def getActionProb(self, canonicalBoard, temp=1):
         """
@@ -46,7 +50,63 @@ class MCTS():
         counts = [x**(1./temp) for x in counts]
         probs = [x/float(sum(counts)) for x in counts]
         return probs
+    
+    def updateQ(self,reward ,state ,action):
+        # updating Qmean of the action
+        s = state
+        r = reward
+        a = action
+        if (s,a) in self.QMeanSA:
+                self.QMeanSA[(s,a)] = (self.Nsa[(s,a)]*self.QMeanSA[(s,a)] + r)/(self.Nsa[(s,a)]+1)
+                self.Nsa[(s,a)] += 1
+        else:
+            self.QMeanSA[(s,a)] = r
+            self.Nsa[(s,a)] = 1
 
+        self.Ns[s] += 1
+
+        # calculating q values 
+        
+        for a in range(self.game.getActionSize()):
+            if self.Vs[s][a]:
+                notconverged = True
+                p = max(self.QMeanSA[(s,a)],DELTA)
+                q = p + DELTA
+                i = 0
+                while(i<100 and notconverged ):
+                    i+=1
+                    kl = p * log(p/q) + (1-p)*log((1-p)/(1-q))
+                    # f = log(self.Ns[s])/self.Nsa[(s,a)] - kl
+                    f = log(self.Ns[s])/(1+self.Nsa[(s,a)]) - kl
+                    df = -(q-p)/(q*(1.0-q))
+
+                    if f*f <EPS :
+                        converged = False
+                        break
+                    q = min(1-DELTA, max(q-f/df,p+DELTA) )
+                self.Qmax[(s,a)] = q
+
+    def bestAction(self,s):
+        """
+        This function choses the maxq value for the state passed
+        
+        Return :
+            action : index of the action to chose
+        """
+
+        bestQ = -1e+10
+        bestA  = 0
+
+        for a in range(self.game.getActionSize()):
+
+            if self.Vs[s][a] :
+                # print(self.Qmax[(s,a)],"entered",bestQ,bestQ < self.Qmax[(s,a)] )
+                if bestQ < self.Qmax[(s,a)] :
+                    bestA = a 
+                    bestQ = self.Qmax[(s,a)]
+
+
+        return bestA
 
     def search(self, canonicalBoard):
         """
@@ -76,7 +136,7 @@ class MCTS():
         # if s is in win state
         if s not in self.Es:
             self.Es[s] = self.game.getGameEnded(canonicalBoard, 1)
-        if self.Es[s]!=0:
+        if self.Es[s]!=-1:
             # terminal node
             return -self.Es[s]
 
@@ -99,41 +159,25 @@ class MCTS():
                 self.Ps[s] /= np.sum(self.Ps[s])
                 print(self.Ps[s],"uniform distribution line 100 MCTS.py")
             self.Vs[s] = valids
+            for a in range(len(valids)) :
+                if valids[a]:
+                    self.Qmax[(s,a)] = 0
+                    self.QMeanSA[(s,a)] = 0
+                    self.Nsa[(s,a)] = 0
             self.Ns[s] = 0
             return -v
 
-        valids = self.Vs[s]
-        cur_best = -float('inf')
-        best_act = -1
-
-        # pick the action with the highest upper confidence bound
-        for a in range(self.game.getActionSize()):
-            if valids[a]:
-                if (s,a) in self.Qsa:
-                    # u = self.Qsa[(s,a)] + self.args.cpuct*self.Ps[s][a]*math.sqrt(self.Ns[s])/(1+self.Nsa[(s,a)])
-                    u = self.Qsa[(s,a)] + math.sqrt(2*self.Ns[s])/(1+self.Nsa[(s,a)])
-                else:
-                    # u = self.args.cpuct*self.Ps[s][a]*math.sqrt(self.Ns[s] + EPS)     # Q = 0 ?
-                    u = math.sqrt(self.Ns[s] + EPS) 
-
-                if u > cur_best:
-                    cur_best = u
-                    best_act = a
-
-        a = best_act
+        a = self.bestAction(s)
+        
         next_s, next_player = self.game.getNextState(canonicalBoard, 1, a)
         next_s = self.game.getCanonicalForm(next_s, next_player)
 
         v = self.search(next_s)
 
-        if (s,a) in self.Qsa:
-            self.Qsa[(s,a)] = (self.Nsa[(s,a)]*self.Qsa[(s,a)] + v)/(self.Nsa[(s,a)]+1)
-            self.Nsa[(s,a)] += 1
-
-        else:
-            self.Qsa[(s,a)] = v
-            self.Nsa[(s,a)] = 1
-
-        self.Ns[s] += 1
+        self.updateQ(v,s,a)
+        
          
         return -v
+
+
+

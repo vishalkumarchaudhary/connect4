@@ -44,12 +44,12 @@ class Connect4Game(Game):
             elif winstate.winner == player:
                 return +1
             elif winstate.winner == -player:
-                return -1
+                return 0
             else:
                 raise ValueError('Unexpected winstate found: ', winstate)
         else:
             # 0 used to represent unfinished game.
-            return 0
+            return -1
 
     def getCanonicalForm(self, board, player):
         # Flip player from 1 to -1
