@@ -81,7 +81,7 @@ class Arena():
             gameResult = self.playGame(verbose=verbose)
             if gameResult==1:
                 oneWon+=1
-            elif gameResult==-1:
+            elif gameResult==0:
                 twoWon+=1
             else:
                 draws+=1
