@@ -83,8 +83,9 @@ class MCTS():
                     # f = log(self.Ns[s])/self.Nsa[(s,a)] - kl
                     if(self.Nsa[(s,a)]==0):
                         f = 1e+8
-                    else :
-                        f = log(self.Ns[s])/(self.Nsa[(s,a)]) - kl
+                    else : 
+                        # implementing bandit arm function
+                        f = (1+self.Ns[s]*log(log(self.Ns[s])))/(self.Nsa[(s,a)]) - kl
                     df = -(q-p)/(q*(1.0-q))
 
                     if f*f <EPS :
