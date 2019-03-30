@@ -43,10 +43,10 @@ class Connect4Game(Game):
                 print("____________draw___________")
                 return .1
             elif winstate.winner == player:
-                print("___WIn_____")
+                # print("___WIn_____")
                 return +1
             elif winstate.winner == -player:
-                print("___Lose_____")
+                # print("___Lose_____")
                 return 0
             else:
                 raise ValueError('Unexpected winstate found: ', winstate)

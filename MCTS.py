@@ -36,9 +36,9 @@ class MCTS():
         """
         
         for i in range(self.args.numMCTSSims):
+            import ipdb; ipdb.set_trace()   # for debugging
             self.search(canonicalBoard)
 
-        # import ipdb; ipdb.set_trace()   # for debugging
         s = self.game.stringRepresentation(canonicalBoard)
         counts = [self.Nsa[(s,a)] if (s,a) in self.Nsa else 0 for a in range(self.game.getActionSize())]
 
@@ -167,6 +167,15 @@ class MCTS():
                     self.Nsa[(s,a)] = 0
             self.Ns[s] = 1
             return -v
+
+        # chossing each arm atleat once
+        if self.Ns[s] == 1 :
+            for a in range(len(self.Vs[s])):
+                if self.Vs[s][a]:
+                    next_s, next_player = self.game.getNextState(canonicalBoard, 1, a)
+                    next_s = self.game.getCanonicalForm(next_s, next_player)
+                    v = self.search(next_s)
+                    self.updateQ((1+v)/2,s,a)
 
         a = self.bestAction(s)
         
