@@ -36,10 +36,9 @@ class MCTS():
         """
         
         for i in range(self.args.numMCTSSims):
-
-            # import ipdb; ipdb.set_trace()   # for debugging
             self.search(canonicalBoard)
 
+        # import ipdb; ipdb.set_trace()   # for debugging
         s = self.game.stringRepresentation(canonicalBoard)
         counts = [self.Nsa[(s,a)] if (s,a) in self.Nsa else 0 for a in range(self.game.getActionSize())]
 
