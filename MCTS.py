@@ -79,7 +79,7 @@ class MCTS():
                     if p== 1 :
                         kl =  -1e+8
                     else :
-                        print(p,q)
+                        print(" p is " , p ," q is " ,q)
                         kl = p * log(p/q) + (1-p)*log((1-p)/(1-q))
                     # f = log(self.Ns[s])/self.Nsa[(s,a)] - kl
                     if(self.Nsa[(s,a)]==0):
