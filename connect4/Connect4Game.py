@@ -40,18 +40,15 @@ class Connect4Game(Game):
         if winstate.is_ended:
             if winstate.winner is None:
                 # draw has very little value.
-                print("____________draw___________")
                 return .1
             elif winstate.winner == player:
-                # print("___WIn_____")
                 return +1
             elif winstate.winner == -player:
-                # print("___Lose_____")
                 return 0
             else:
                 raise ValueError('Unexpected winstate found: ', winstate)
         else:
-            # 0 used to represent unfinished game.
+            # -1 used to represent unfinished game.
             return -1
 
     def getCanonicalForm(self, board, player):
