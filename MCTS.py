@@ -79,7 +79,7 @@ class MCTS():
                     if p== 1 :
                         kl =  -1e+8
                     else :
-                        print(" p is " , p ," q is " ,q)
+                        
                         kl = p * log(p/q) + (1-p)*log((1-p)/(1-q))
                     # f = log(self.Ns[s])/self.Nsa[(s,a)] - kl
                     if(self.Nsa[(s,a)]==0):
@@ -147,7 +147,7 @@ class MCTS():
             self.Es[s] = self.game.getGameEnded(canonicalBoard, 1)
         if self.Es[s]!=-1                               :
             # terminal node
-            return -self.Es[s]
+            return  1 - self.Es[s]
 
         # this is leaf node and hence value is returned as per the neural network
         if s not in self.Ps:
@@ -178,7 +178,7 @@ class MCTS():
                     self.QMeanSA[(s,a)] = 0
                     self.Nsa[(s,a)] = 0
             self.Ns[s] = 1
-            return -v
+            return 1-v
 
         # # chossing each arm atleat once
         # if self.Ns[s] == 1 :
@@ -195,11 +195,13 @@ class MCTS():
         next_s = self.game.getCanonicalForm(next_s, next_player)
 
         v = self.search(next_s)
-
+        if(type(v)==type([])):
+            import ipdb; ipdb.set_trace()   # for debugging
+        
         self.updateQ(1-v ,s,a)
         
-         
-        return 1-v
+        v = 1-v
+        return v
 
 
 
