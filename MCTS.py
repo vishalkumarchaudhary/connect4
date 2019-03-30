@@ -36,7 +36,7 @@ class MCTS():
         """
         
         for i in range(self.args.numMCTSSims):
-            import ipdb; ipdb.set_trace()   # for debugging
+            # import ipdb; ipdb.set_trace()   # for debugging
             self.search(canonicalBoard)
 
         s = self.game.stringRepresentation(canonicalBoard)
@@ -137,7 +137,7 @@ class MCTS():
         # if s is in win state
         if s not in self.Es:
             self.Es[s] = self.game.getGameEnded(canonicalBoard, 1)
-        if self.Es[s]!=-1:
+        if self.Es[s]!=-1                               :
             # terminal node
             return -self.Es[s]
 
