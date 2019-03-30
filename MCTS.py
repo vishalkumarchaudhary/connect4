@@ -36,7 +36,7 @@ class MCTS():
         """
         
         for i in range(self.args.numMCTSSims):
-            import ipdb; ipdb.set_trace()   # for debugging
+            # import ipdb; ipdb.set_trace()   # for debugging
             self.search(canonicalBoard)
 
         s = self.game.stringRepresentation(canonicalBoard)
