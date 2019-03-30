@@ -77,7 +77,7 @@ class MCTS():
                 while(i<100 and notconverged ):
                     i+=1
                     if p== 1 :
-                        kl =  -1e+8
+                        kl =  log(1/q)
                     else :
                         
                         kl = p * log(p/q) + (1-p)*log((1-p)/(1-q))
@@ -85,6 +85,7 @@ class MCTS():
                     if(self.Nsa[(s,a)]==0):
                         f = 1e+8
                     else : 
+                        # f = log(self.Ns[s])/(self.Nsa[(s,a)]) - kl
                         # implementing bandit arm function
                         f = (1+self.Ns[s]*log(log(self.Ns[s])))/(self.Nsa[(s,a)]) - kl
                     df = -(q-p)/(q*(1.0-q))
