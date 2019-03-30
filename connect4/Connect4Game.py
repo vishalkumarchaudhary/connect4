@@ -40,7 +40,7 @@ class Connect4Game(Game):
         if winstate.is_ended:
             if winstate.winner is None:
                 # draw has very little value.
-                return .1
+                return .5
             elif winstate.winner == player:
                 return +1
             elif winstate.winner == -player:

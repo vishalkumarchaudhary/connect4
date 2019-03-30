@@ -187,10 +187,10 @@ class MCTS():
 
         v = self.search(next_s)
 
-        self.updateQ((1+v)/2,s,a)
+        self.updateQ(1-v ,s,a)
         
          
-        return -v
+        return 1-v
 
 
 
