@@ -36,7 +36,7 @@ class MCTS():
         """
         
         for i in range(self.args.numMCTSSims):
-            # import ipdb; ipdb.set_trace()   # for debugging
+            import ipdb; ipdb.set_trace()   # for debugging
             self.search(canonicalBoard)
 
         s = self.game.stringRepresentation(canonicalBoard)
@@ -68,24 +68,27 @@ class MCTS():
 
         # calculating q values 
         
-        # for a in range(self.game.getActionSize()):
-        if self.Vs[s][a]:
-            notconverged = True
-            p = max(self.QMeanSA[(s,a)],DELTA)
-            q = p + DELTA
-            i = 0
-            while(i<100 and notconverged ):
-                i+=1
-                kl = p * log(p/q) + (1-p)*log((1-p)/(1-q))
-                # f = log(self.Ns[s])/self.Nsa[(s,a)] - kl
-                f = log(self.Ns[s])/(self.Nsa[(s,a)]) - kl
-                df = -(q-p)/(q*(1.0-q))
+        for a in range(self.game.getActionSize()):
+            if self.Vs[s][a]:
+                notconverged = True
+                p = max(self.QMeanSA[(s,a)],DELTA)
+                q = p + DELTA
+                i = 0
+                while(i<100 and notconverged ):
+                    i+=1
+                    kl = p * log(p/q) + (1-p)*log((1-p)/(1-q))
+                    # f = log(self.Ns[s])/self.Nsa[(s,a)] - kl
+                    if(self.Nsa[(s,a)]==0):
+                        f = 1e+8
+                    else :
+                        f = log(self.Ns[s])/(self.Nsa[(s,a)]) - kl
+                    df = -(q-p)/(q*(1.0-q))
 
-                if f*f <EPS :
-                    converged = False
-                    break
-                q = min(1-DELTA, max(q-f/df,p+DELTA) )
-            self.Qmax[(s,a)] = q
+                    if f*f <EPS :
+                        converged = False
+                        break
+                    q = min(1-DELTA, max(q-f/df,p+DELTA) )
+                self.Qmax[(s,a)] = q
 
     def bestAction(self,s):
         """
@@ -168,14 +171,14 @@ class MCTS():
             self.Ns[s] = 1
             return -v
 
-        # chossing each arm atleat once
-        if self.Ns[s] == 1 :
-            for a in range(len(self.Vs[s])):
-                if self.Vs[s][a]:
-                    next_s, next_player = self.game.getNextState(canonicalBoard, 1, a)
-                    next_s = self.game.getCanonicalForm(next_s, next_player)
-                    v = self.search(next_s)
-                    self.updateQ((1+v)/2,s,a)
+        # # chossing each arm atleat once
+        # if self.Ns[s] == 1 :
+        #     for a in range(len(self.Vs[s])):
+        #         if self.Vs[s][a]:
+        #             next_s, next_player = self.game.getNextState(canonicalBoard, 1, a)
+        #             next_s = self.game.getCanonicalForm(next_s, next_player)
+        #             v = self.search(next_s)
+        #             self.updateQ((1+v)/2,s,a)
 
         a = self.bestAction(s)
         
