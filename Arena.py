@@ -99,7 +99,8 @@ class Arena():
         
         for _ in range(num):
             gameResult = self.playGame(verbose=verbose)
-            if gameResult==-1:
+            print("------------------>",gameResult,"<----------------")
+            if gameResult==0:
                 oneWon+=1                
             elif gameResult==1:
                 twoWon+=1

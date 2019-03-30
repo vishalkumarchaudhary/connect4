@@ -64,8 +64,8 @@ class Coach():
             r = self.game.getGameEnded(board, self.curPlayer)
   
             if r!=-1:
-                 
-                return [(x[0],x[2],r*((-1)**(x[1]!=self.curPlayer))) for x in trainExamples]
+                return [(x[0],x[2], r ) for x in trainExamples]
+                # return [(x[0],x[2],r*((-1)**(x[1]!=self.curPlayer))) for x in trainExamples]
 
                  
     def learn(self):
@@ -128,7 +128,7 @@ class Coach():
 #             print(trainExamples ,np.shape(trainExamples))
             
             loss = self.nnet.train(trainExamples)
-            print(loss,"loosss")
+
             losses = np.load("losses_array.npy")
             self.losses = np.hstack((losses,[[sum(loss[0])/len(loss[0])], [sum(loss[1])/len(loss[1])], [(sum(loss[0])+sum(loss[1]))/len(loss[0])] ]))
             

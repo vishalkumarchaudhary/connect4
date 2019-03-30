@@ -36,7 +36,7 @@ class MCTS():
         """
         
         for i in range(self.args.numMCTSSims):
-            
+
             # import ipdb; ipdb.set_trace()   # for debugging
             self.search(canonicalBoard)
 
@@ -176,7 +176,7 @@ class MCTS():
 
         v = self.search(next_s)
 
-        self.updateQ(v,s,a)
+        self.updateQ((1+v)/2,s,a)
         
          
         return -v
