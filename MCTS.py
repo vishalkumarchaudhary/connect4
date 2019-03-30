@@ -76,7 +76,10 @@ class MCTS():
                 i = 0
                 while(i<100 and notconverged ):
                     i+=1
-                    kl = p * log(p/q) + (1-p)*log((1-p)/(1-q))
+                    if p== 1 :
+                        kl =  -1e+8
+                    else :
+                        kl = p * log(p/q) + (1-p)*log((1-p)/(1-q))
                     # f = log(self.Ns[s])/self.Nsa[(s,a)] - kl
                     if(self.Nsa[(s,a)]==0):
                         f = 1e+8
