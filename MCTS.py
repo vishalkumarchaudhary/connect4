@@ -79,7 +79,6 @@ class MCTS():
                     if p== 1 :
                         kl =  log(1/q)
                     else :
-                        print(" p is ", p , " q is " , q ," reward is ", r)
                         kl = p * log(p/q) + (1-p)*log((1-p)/(1-q))
                     # f = log(self.Ns[s])/self.Nsa[(s,a)] - kl
                     if(self.Nsa[(s,a)]==0):
@@ -154,6 +153,7 @@ class MCTS():
         if s not in self.Ps:
             # leaf node
             self.Ps[s], v = self.nnet.predict(canonicalBoard)
+            v = v[0]
             if(v>1):
                 v = 1
             if v < 0 :
