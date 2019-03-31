@@ -71,19 +71,13 @@ class MCTS():
         for a in range(self.game.getActionSize()):
             if self.Vs[s][a]:
                 notconverged = True
-                p = max(self.QMeanSA[(s,a)],DELTA)
+                p = max(self.QMeanSA[(s,a)]- 2*DELTA,DELTA)
                 q = p + DELTA
                 i = 0
                 while(i<100 and notconverged ):
                     i+=1
-                    if p== 1 :
-                        kl =  log(1/q)
-                    else :
-                        try:
-                            kl = p * log(p/q) + (1-p)*log((1-p)/(1-q))
-                        except:
-                            print(" p ", p , " q " , q)
-                        
+                    
+                        kl = p * log(p/q) + (1-p)*log((1-p)/(1-q))
                         
                     # f = log(self.Ns[s])/self.Nsa[(s,a)] - kl
                     if(self.Nsa[(s,a)]==0):
