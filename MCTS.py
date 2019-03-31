@@ -2,6 +2,7 @@ import math
 import numpy as np
 import random 
 from math import log
+from numpy.random import beta
 EPS = 1e-6
 DELTA = 1e-5
 
@@ -15,7 +16,7 @@ class MCTS():
         self.nnet = nnet
         self.args = args
         
-        self.Qmax = {} 
+        self.Beta = {} 
         self.QMeanSA = {}       # stores Q values for s,a (as defined in the paper)
         self.Nsa = {}       # stores #times edge s,a was visited
         self.Ns = {}        # stores #times board s was visited
@@ -70,31 +71,7 @@ class MCTS():
         
         for a in range(self.game.getActionSize()):
             if self.Vs[s][a]:
-                notconverged = True
-                p = max(self.QMeanSA[(s,a)]- 2*DELTA,DELTA)
-                q = p + DELTA
-                i = 0
-                while(i<100 and notconverged ):
-                    i+=1
-                    if p > 1 or q >1 :
-                        kl = -1e+8
-                    else :
-                        kl = p * log(p/q) + (1-p)*log((1-p)/(1-q))
-
-                    # f = log(self.Ns[s])/self.Nsa[(s,a)] - kl
-                    if(self.Nsa[(s,a)]==0):
-                        f = 1e+8
-                    else : 
-                        f = log(self.Ns[s])/(self.Nsa[(s,a)]) - kl
-                        # implementing bandit arm function
-                        # f = (1+self.Ns[s]*log(log(self.Ns[s])))/(self.Nsa[(s,a)]) - kl
-                    df = -(q-p)/(q*(1.0-q))
-
-                    if f*f <EPS :
-                        converged = False
-                        break
-                    q = min(1-DELTA, max(q-f/df,p+DELTA) )
-                self.Qmax[(s,a)] = q
+                self.Beta[(s,a)] = beta(1+self.Nsa[(s,a)]*self.QMeanSA[(s,a)] , 1.000000+self.Nsa[(s,a)] -self.Nsa[(s,a)]*self.QMeanSA[(s,a)] )
 
     def bestAction(self,s):
         """
@@ -110,10 +87,10 @@ class MCTS():
         for a in range(self.game.getActionSize()):
 
             if self.Vs[s][a] :
-                # print(self.Qmax[(s,a)],"entered",bestQ,bestQ < self.Qmax[(s,a)] )
-                if bestQ < self.Qmax[(s,a)] :
+                # print(self.Beta[(s,a)],"entered",bestQ,bestQ < self.Beta[(s,a)] )
+                if bestQ < self.Beta[(s,a)] :
                     bestA = a 
-                    bestQ = self.Qmax[(s,a)]
+                    bestQ = self.Beta[(s,a)]
 
 
         return bestA
@@ -176,7 +153,7 @@ class MCTS():
             self.Vs[s] = valids
             for a in range(len(valids)) :
                 if valids[a]:
-                    self.Qmax[(s,a)] = 0
+                    self.Beta[(s,a)] = 0
                     self.QMeanSA[(s,a)] = 0
                     self.Nsa[(s,a)] = 0
             self.Ns[s] = 1
