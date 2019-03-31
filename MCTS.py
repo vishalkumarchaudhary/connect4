@@ -76,9 +76,11 @@ class MCTS():
                 i = 0
                 while(i<100 and notconverged ):
                     i+=1
-                    
+                    if p > 1 or q >1 :
+                        kl = -1e+8
+                    else :
                         kl = p * log(p/q) + (1-p)*log((1-p)/(1-q))
-                        
+
                     # f = log(self.Ns[s])/self.Nsa[(s,a)] - kl
                     if(self.Nsa[(s,a)]==0):
                         f = 1e+8
@@ -153,7 +155,7 @@ class MCTS():
             # leaf node
             self.Ps[s], v = self.nnet.predict(canonicalBoard)
             v = v[0]
-            if(v>1):
+            if(v>=1):
                 v = 1
             if v < 0 :
                 v = 0 
