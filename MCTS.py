@@ -82,7 +82,7 @@ class MCTS():
                         try:
                             kl = p * log(p/q) + (1-p)*log((1-p)/(1-q))
                         except:
-                            print(" p ", p , " q ")
+                            print(" p ", p , " q " , q)
                         
                         
                     # f = log(self.Ns[s])/self.Nsa[(s,a)] - kl
