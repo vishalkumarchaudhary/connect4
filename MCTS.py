@@ -79,7 +79,12 @@ class MCTS():
                     if p== 1 :
                         kl =  log(1/q)
                     else :
-                        kl = p * log(p/q) + (1-p)*log((1-p)/(1-q))
+                        try:
+                            kl = p * log(p/q) + (1-p)*log((1-p)/(1-q))
+                        except:
+                            print(" p ", p , " q ")
+                        
+                        
                     # f = log(self.Ns[s])/self.Nsa[(s,a)] - kl
                     if(self.Nsa[(s,a)]==0):
                         f = 1e+8
@@ -195,10 +200,7 @@ class MCTS():
         next_s, next_player = self.game.getNextState(canonicalBoard, 1, a)
         next_s = self.game.getCanonicalForm(next_s, next_player)
 
-        v = self.search(next_s)
-        if(type(v)==type([])):
-            import ipdb; ipdb.set_trace()   # for debugging
-        
+        v = self.search(next_s)        
         self.updateQ(1-v ,s,a)
         
         v = 1-v
