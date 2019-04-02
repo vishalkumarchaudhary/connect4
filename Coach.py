@@ -171,10 +171,8 @@ class Coach():
                 self.nnet.save_checkpoint(folder=self.args.checkpoint, filename=self.getCheckpointFile(i))
                 self.nnet.save_checkpoint(folder=self.args.checkpoint, filename='best.pth.tar')           
             if i>1 :
-                try:
-                    os.remove(self.getCheckpointFile(i-1) +'.data-00000-of-00001' )
-                except:
-                    pass     
+                os.remove(self.getCheckpointFile(i-1) +'.data-00000-of-00001' )
+                 
 
     def getCheckpointFile(self, iteration):
         return 'checkpoint_' + str(iteration) + '.pth.tar'
