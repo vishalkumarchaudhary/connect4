@@ -13,14 +13,14 @@ args = dotdict({
     'tempThreshold': 15,
     'updateThreshold': 0.5,
     'maxlenOfQueue': 200000,
-    'numMCTSSims': 50,
-    'arenaCompare': 2,
+    'numMCTSSims': 100,
+    'arenaCompare': 10,
     'cpuct': 1,
 
     'checkpoint': './temp/',
-    'load_model': False,
+    'load_model': True,
 #     'load_folder_file': ('temp','best.pth.tar'),
-      'load_folder_file': ('temp/', "checkpoint_0.pth.tar" ),
+      'load_folder_file': ('temp/', "checkpoint_15.pth.tar" ),
     
     'numItersForTrainExamplesHistory': 20,
 
@@ -35,6 +35,7 @@ if __name__=="__main__":
     print( "**********************")
     print(args.load_folder_file[0], args.load_folder_file[1])
     print("_______________________________________________________")
+    
     x = [[],[],[]]
     np.save("losses_array.npy",x)
 
@@ -47,4 +48,4 @@ if __name__=="__main__":
         c.loadTrainExamples()
     print(time.asctime())
     c.learn()
-    
+
