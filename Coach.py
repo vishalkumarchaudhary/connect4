@@ -169,7 +169,7 @@ class Coach():
             else:
                 print('ACCEPTING NEW MODEL')
                 self.nnet.save_checkpoint(folder=self.args.checkpoint, filename=self.getCheckpointFile(i))
-                if(self.getprevCheckpointFile()!='-1'):
+                if(self.getprevCheckpointFile(i)!='-1'):
                     os.remove(self.getprevCheckpointFile(i))
                 self.nnet.save_checkpoint(folder=self.args.checkpoint, filename='best.pth.tar')                
 
