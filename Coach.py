@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 from IPython import display
 import pylab as pl
 from IPython.display import clear_output
-
+import os
 
 class Coach():
     """
@@ -170,7 +170,7 @@ class Coach():
                 print('ACCEPTING NEW MODEL')
                 self.nnet.save_checkpoint(folder=self.args.checkpoint, filename=self.getCheckpointFile(i))
                 if(self.getprevCheckpointFile()!='-1'):
-                    !rm self.getprevCheckpointFile()
+                    os.remove(self.getprevCheckpointFile())
                 self.nnet.save_checkpoint(folder=self.args.checkpoint, filename='best.pth.tar')                
 
     def getCheckpointFile(self, iteration):
