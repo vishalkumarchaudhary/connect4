@@ -172,7 +172,7 @@ class Coach():
                 if i>1 :
                     try:
                         os.remove(self.getCheckpointFile(i-1) +'.data-00000-of-00001' )
-                    catch:
+                    except:
                         pass
                     self.nnet.save_checkpoint(folder=self.args.checkpoint, filename='best.pth.tar')                
 
