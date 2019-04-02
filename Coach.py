@@ -169,18 +169,15 @@ class Coach():
             else:
                 print('ACCEPTING NEW MODEL')
                 self.nnet.save_checkpoint(folder=self.args.checkpoint, filename=self.getCheckpointFile(i))
-                if(self.getprevCheckpointFile(i)!='-1'):
-                    os.remove(self.getprevCheckpointFile(i))
+                if i>1
+                try:
+                    os.remove(self.getCheckpointFile(i-1) +'.data-00000-of-00001' )
+                catch:
+                    pass
                 self.nnet.save_checkpoint(folder=self.args.checkpoint, filename='best.pth.tar')                
 
     def getCheckpointFile(self, iteration):
         return 'checkpoint_' + str(iteration) + '.pth.tar'
-
-    def getprevCheckpointFile(self, iteration):
-        if iteration >1 :
-            return 'checkpoint_' + str(iteration-1) + '.pth.tar'
-        else :
-            return '-1'
 
 
     def saveTrainExamples(self, iteration):
