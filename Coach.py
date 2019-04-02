@@ -169,7 +169,7 @@ class Coach():
             else:
                 print('ACCEPTING NEW MODEL')
                 self.nnet.save_checkpoint(folder=self.args.checkpoint, filename=self.getCheckpointFile(i))
-                if i>1
+                if i>1 :
                 try:
                     os.remove(self.getCheckpointFile(i-1) +'.data-00000-of-00001' )
                 catch:
