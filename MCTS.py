@@ -110,11 +110,11 @@ class MCTS():
         for a in range(self.game.getActionSize()):
             if valids[a]:
                 if (s,a) in self.Qsa:
-                    # u = self.Qsa[(s,a)] + self.args.cpuct*self.Ps[s][a]*math.sqrt(self.Ns[s])/(1+self.Nsa[(s,a)])
-                    u = self.Qsa[(s,a)] + math.sqrt(2*self.Ns[s])/(1+self.Nsa[(s,a)])
+                    u = self.Qsa[(s,a)] + self.args.cpuct*self.Ps[s][a]*math.sqrt(self.Ns[s])/(1+self.Nsa[(s,a)])
+                    # u = self.Qsa[(s,a)] + math.sqrt(2*self.Ns[s])/(1+self.Nsa[(s,a)])
                 else:
-                    # u = self.args.cpuct*self.Ps[s][a]*math.sqrt(self.Ns[s] + EPS)     # Q = 0 ?
-                    u = math.sqrt(self.Ns[s] + EPS) 
+                    u = self.args.cpuct*self.Ps[s][a]*math.sqrt(self.Ns[s] + EPS)     # Q = 0 ?
+                    # u = math.sqrt(self.Ns[s] + EPS) 
 
                 if u > cur_best:
                     cur_best = u
