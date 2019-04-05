@@ -5,16 +5,17 @@ from connect4.tensorflow.NNet import NNetWrapper as nn
 from utils import dotdict
 import time
 import numpy as np
+import Tournament as tp
 # from utils import *
 print(time.time())
 args = dotdict({
-    'numIters': 1000,
-    'numEps': 5,
+    'numIters': 50,
+    'numEps': 10,
     'tempThreshold': 15,
     'updateThreshold': 0.5,
     'maxlenOfQueue': 200000,
     'numMCTSSims': 50,
-    'arenaCompare': 2,
+    'arenaCompare': 10,
     'cpuct': 1,
 
     'checkpoint': './temp/',
@@ -41,7 +42,7 @@ if __name__=="__main__":
     if args.load_model:
         nnet.load_checkpoint(args.load_folder_file[0], args.load_folder_file[1])
     # Coach helps to generate training examples and the learn from the examples of generated during self-play
-    c = Coach(g, nnet, args)
+    c = Tournament(g, nnet, args)
     if args.load_model:
         print("Load trainExamples from file")
         c.loadTrainExamples()
