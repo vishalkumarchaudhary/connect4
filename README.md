@@ -35,3 +35,15 @@ neural network is defined inside connect4/tensorflow folder.
 
 	Arena.py :
 	This contains method which will do the tournament between the agents.
+# Results	
+KL-UCB Regret in multi-arm bandit is less than the UCB regret. This information can be utilised and be implemented in action selection from a state as similar to kl-ucb selection of multi-arm bandit. The below loss function suggest the same that self-play using MCTS with KL-UCB vs MCTS with UCB.
+
+Tournament between these shows 53 Wins ,39 Loss and 8 Draws by the kl-ucb.
+![kl-ucb/Baseline loss function](images/kl-ucbVSbaseline.png)
+
+With the recent discovery of Posterior sampling  or Thompson sampling, regret of Thompson sampling is lower than the UCB. The loss comparison is shown below between Thompson sampling and UCB.
+![kl-ucb/Baseline loss function](images/thompsonVSbaseline.png)
+
+Also Thompson sampling should have less regret than the KL-UCB but in this experiment both are performing same.
+![kl-ucb/Baseline loss function](images/kl-ucbVSthompson.png)
+
