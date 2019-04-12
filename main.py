@@ -1,6 +1,6 @@
 # %%writefile main.py
 from Coach import Coach
-from connect4.Connect4Game import Connect4Game
+from connect4.CricketGame import CricketGame
 from connect4.tensorflow.NNet import NNetWrapper as nn
 from utils import dotdict
 import time
@@ -19,24 +19,24 @@ args = dotdict({
 
     'checkpoint': './temp/',
     'load_model': False,
-#     'load_folder_file': ('temp','best.pth.tar'),
-      'load_folder_file': ('temp/', "checkpoint_0.pth.tar" ),
+    # 'load_folder_file': ('temp','best.pth.tar'),
+    'load_folder_file': ('temp/', "checkpoint_0.pth.tar"),
     
     'numItersForTrainExamplesHistory': 20,
 
 })
 
-if __name__=="__main__":
+if __name__ == "__main__":
     
     # game instantiating the game connect4 game
-    g = Connect4Game()
+    g = CricketGame()
     # initialising neural network and the config of neural network is defined in connect4/tensorflow/NNet.py file
     nnet = nn(g)
-    print( "**********************")
+    print("**********************")
     print(args.load_folder_file[0], args.load_folder_file[1])
     print("_______________________________________________________")
-    x = [[],[],[]]
-    np.save("losses_array.npy",x)
+    x = [[], [], []]
+    np.save("losses_array.npy", x)
 
     if args.load_model:
         nnet.load_checkpoint(args.load_folder_file[0], args.load_folder_file[1])
@@ -47,4 +47,3 @@ if __name__=="__main__":
         c.loadTrainExamples()
     print(time.asctime())
     c.learn()
-    
