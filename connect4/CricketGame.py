@@ -90,7 +90,8 @@ class CricketGame(Game):
                     runs = runs+p_factor*score[shot]
         bowlers_over = np.zeros((5,))
         bowlers_over[state[3]] = 1
-
+        self.overs_left -= 1
+        self.run_score += runs
         return np.asarray([self.run_score + runs, self.wicket_in_hand - wicket, self.overs_left-1,self.bowler,
                            self.left_overs_bowler1 - bowlers_over[0], self.left_overs_bowler2 - bowlers_over[1],
                            self.left_overs_bowler3 - bowlers_over[2], self.left_overs_bowler4 - bowlers_over[3],
@@ -134,7 +135,7 @@ class CricketGame(Game):
     def getValidMoves(self, state):
         return [1]*self.getActionSize()
 
-    def getGameEnded(self, player):
+    def getGameEnded(self, player="Batsman"):
         if self.wicket_in_hand <= 0 and self.overs_left <= 0:
             if player == 'Batsman':
                 return self.run_score

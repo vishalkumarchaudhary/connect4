@@ -8,7 +8,7 @@ class MCTS():
     This class handles the MCTS tree.
     """
 
-    def __init__(self, nnet, args):
+    def __init__(self,game, nnet, args):
         self.nnet = nnet
         self.args = args
         self.Qsa = {}       # stores Q values for s,a (as defined in the paper)
@@ -18,7 +18,6 @@ class MCTS():
 
         self.Es = {}        # stores game.getGameEnded ended for board s
         self.Vs = {}        # stores game.getValidMoves for board s
- 
 
     def getActionProb(self, state, temp=1):
         """

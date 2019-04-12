@@ -47,7 +47,7 @@ class NNetWrapper(NeuralNet):
         """
         examples: list of examples, each example is of form (board, pi, v)
         """
-        losses = [[],[]]
+        losses = [[], []]
         for epoch in range(args.epochs):
             print('EPOCH ::: ' + str(epoch + 1))
             data_time = AverageMeter()
@@ -62,18 +62,20 @@ class NNetWrapper(NeuralNet):
             # self.sess.run(tf.local_variables_initializer())
             while batch_idx < int(len(examples) / args.batch_size):
                 sample_ids = np.random.randint(len(examples), size=args.batch_size)
-                boards, batting_action, bowling_action = list(zip(*[examples[i] for i in sample_ids]))
+                states, batting_action, bowling_action = list(zip(*[examples[i] for i in sample_ids]))
 
                 # predict and compute gradient and do SGD step
-                batting_dict = {self.battingNNet.input: states, self.nnet.target: actions, self.nnet.isTraining: True}
-                bowling_dict = {self.bowlingNNet.input: states, self.nnet.target: actions, self.nnet.isTraining: True}
+                batting_dict = {self.battingNNet.input: states, self.battingNNet.target: batting_action,
+                                self.battingNNet.isTraining: True}
+                bowling_dict = {self.bowlingNNet.input: states, self.bowlingNNet.target: bowling_action,
+                                self.bowlingNNet.isTraining: True}
 
                 # measure data loading time
                 data_time.update(time.time() - end)
 
                 # record loss
-                self.sess.run(self.battingNNet.train_step, feed_dict=batting_dict)
-                self.sess.run(self.bowlingNNet.train_step, feed_dict=bowling_dict)
+                self.sess.run(self.battingNNet.shot, feed_dict=batting_dict)
+                self.sess.run(self.bowlingNNet.bowler, feed_dict=bowling_dict)
                 batting_loss = self.sess.run(self.battingNNet.loss, feed_dict=batting_dict)
                 bowling_loss = self.sess.run(self.bowlingNNet.loss, feed_dict=bowling_dict)
                 
@@ -118,15 +120,18 @@ class NNetWrapper(NeuralNet):
             os.mkdir(folder)
         else:
             print("Checkpoint Directory exists! ")
+
         if self.saver == None:
             self.saver = tf.train.Saver(self.nnet.graph.get_collection('variables'))
-        with self.nnet.graph.as_default():
+        with self.battingNNet.graph.as_default():
             self.saver.save(self.sess, filepath)
 
     def load_checkpoint(self, folder='checkpoint', filename='checkpoint.pth.tar'):
         filepath = os.path.join(folder, filename)
         if not os.path.exists(filepath + '.meta'):
             raise("No model in path {}".format(filepath))
+        # TODO: pass the neural network as argument
+
         with self.nnet.graph.as_default():
             self.saver = tf.train.Saver()
             self.saver.restore(self.sess, filepath)

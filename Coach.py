@@ -28,7 +28,7 @@ class Coach:
             self.mcts = MCTS(self.nnet, self.args)
 
             # history of examples from args.numItersForTrainExamplesHistory latest iterations
-            self.trainExamplesHistory = []
+            self.trainExamples = []
             self.skipFirstSelfPlay = False  # can be overriden in loadTrainExamples()
             self.losses = [[], [], []]
 
@@ -46,8 +46,7 @@ class Coach:
                                pi is the MCTS informed policy vector, v is +1 if
                                the player eventually won the game, else -1.
             """
-            battingTrainExamples = []
-            bowlingTrainExampes = []
+            trainExamples = []
             state = self.game.getInitBoard()
             episodeStep = 0
             while True:
@@ -56,18 +55,21 @@ class Coach:
                 temp = int(episodeStep < self.args.tempThreshold)
 
                 print('.', end=" ")
-                pi = self.mcts.getActionProb( state, temp=temp)
-                for b, p in pi:
-                    trainExamples.append([b, self.curPlayer, p, None])
+                pi = self.mcts.getActionProb(state, temp=temp)
+
+                shot_prob = self.getShotProbability(pi)
+                bowler_prob = self.getBowlerProbablity(pi)
+
+                trainExamples.append([state, shot_prob, bowler_prob])
 
                 action = np.random.choice(len(pi), p=pi)
-                board, self.curPlayer = self.game.getNextState(board, self.curPlayer, action)
+                state = self.game.getNextState(state, action)
 
-                r = self.game.getGameEnded(board, self.curPlayer)
+                r = self.game.getGameEnded(state)
 
-                if r!=0:
+                if r == 0 or state[1] <= 0 or state[2] <= 0:
+                    return trainExamples
 
-                    return [(x[0],x[2],r*((-1)**(x[1]!=self.curPlayer))) for x in trainExamples]
 
 
         def learn(self):
@@ -84,8 +86,8 @@ class Coach:
                 print('------ITER ' + str(i) + '------')
                 # examples of the iteration
 
-                if not self.skipFirstSelfPlay or i>1:
-                    iterationTrainExamples = deque([], maxlen=self.args.maxlenOfQueue)
+                if not self.skipFirstSelfPlay or i > 1:
+                    iterTrainExamples = deque([], maxlen=self.args.maxlenOfQueue)
 
                     eps_time = AverageMeter()
                     bar = Bar('Self Play', max=self.args.numEps)
@@ -93,7 +95,7 @@ class Coach:
 
                     for eps in range(self.args.numEps):
                         self.mcts = MCTS(self.game, self.nnet, self.args)   # reset search tree
-                        iterationTrainExamples += self.executeEpisode()
+                        iterTrainExamples += self.executeEpisode()
 
                         # bookkeeping + plot progress
                         eps_time.update(time.time() - end)
@@ -104,23 +106,25 @@ class Coach:
                     bar.finish()
 
                     # save the iteration examples to the history
-                    self.trainExamplesHistory.append(iterationTrainExamples)
+                    self.trainExamples.append(iterTrainExamples)
 
-                if len(self.trainExamplesHistory) > self.args.numItersForTrainExamplesHistory:
-                    print("len(trainExamplesHistory) =", len(self.trainExamplesHistory), " => remove the oldest trainExamples")
-                    self.trainExamplesHistory.pop(0)
+                if len(self.trainExamples) > self.args.numItersForTrainExamplesHistory:
+                    print("len(trainExamplesHistory) =", len(self.trainExamples), " => remove the oldest trainExamples")
+                    self.trainExamples.pop(0)
+
+
                 # backup history to a file
                 # NB! the examples were collected using the model from the previous iteration, so (i-1)
-                self.saveTrainExamples(i-1)
+                # self.saveTrainExamples(i-1)
 
-                # shuffle examlpes before training
-                trainExamples = []
-                for e in self.trainExamplesHistory:
-                    trainExamples.extend(e)
+                # shuffle examples before training
+                # trainExamples = []
+                # for e in self.trainExamplesHistory:
+                #     trainExamples.extend(e)
+                # TODO: shuffle the examples
 
-
-                shuffle(trainExamples)
-    #             shuffle(np.transpose(trainExamples ,(0,2,3,1)))
+                # shuffle(trainExamples)
+                # shuffle(np.transpose(trainExamples ,(0,2,3,1)))
 
                 # training new network, keeping a copy of the old one
                 self.nnet.save_checkpoint(folder=self.args.checkpoint, filename='temp.pth.tar')
@@ -129,10 +133,10 @@ class Coach:
 
     #             print(trainExamples ,np.shape(trainExamples))
 
-                loss = self.nnet.train(trainExamples)
-                print(loss,"loosss")
+                loss = self.nnet.train(self.trainExamples)
+                print(loss, "loosss")
                 losses = np.load("losses_array.npy")
-                self.losses = np.hstack((losses,[[sum(loss[0])/len(loss[0])], [sum(loss[1])/len(loss[1])], [(sum(loss[0])+sum(loss[1]))/len(loss[0])] ]))
+                self.losses = np.hstack((losses, [[sum(loss[0])/len(loss[0])], [sum(loss[1])/len(loss[1])], [(sum(loss[0])+sum(loss[1]))/len(loss[0])] ]))
 
     #             clear_output(wait=True)
 
@@ -182,7 +186,7 @@ class Coach:
                 os.makedirs(folder)
             filename = os.path.join(folder, self.getCheckpointFile(iteration)+".examples")
             with open(filename, "wb+") as f:
-                Pickler(f).dump(self.trainExamplesHistory)
+                Pickler(f).dump(self.trainExamples)
             f.closed
 
         def loadTrainExamples(self):
@@ -196,7 +200,17 @@ class Coach:
             else:
                 print("File with trainExamples found. Read it.")
                 with open(examplesFile, "rb") as f:
-                    self.trainExamplesHistory = Unpickler(f).load()
+                    self.trainExamples = Unpickler(f).load()
                 f.closed
                 # examples based on the model were already collected (loaded)
             self.skipFirstSelfPlay = True
+
+        def getShotProbability(self, pi):
+            shot_probability = [sum(i) for i in np.reshape(pi, (5, 5))]
+            shot_probability /= sum(shot_probability)
+            return shot_probability
+
+        def getBowlerProbablity(self, pi):
+            bowler_probability = [sum(i) for i in np.reshape(pi, (5, 5)).T]
+            bowler_probability /= sum(bowler_probability)
+            return bowler_probability
