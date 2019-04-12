@@ -3,3 +3,4 @@ __pycache__
 temp/
 a.txt
 losses_array.npy
+.idea/*
