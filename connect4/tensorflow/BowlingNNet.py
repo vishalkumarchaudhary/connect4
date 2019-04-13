@@ -27,11 +27,11 @@ class BowlingNNet:
             hidden3 = Dropout(Dense(hidden2, 2*args.input_size, Relu), .2)
             self.bowler = Dense(hidden3, args.bowler_action_size, Sigmoid)
 
-            # self.calculate_loss()
+            self.calculate_loss()
 
     def calculate_loss(self):
-        self.target_action = tf.placeholder(tf.float32, shape=[None, self.args.bowler_action_size])
-        self.loss = tf.losses.softmax_cross_entropy(self.target_action, self.bowler)
+        self.target_bowler = tf.placeholder(tf.float32, shape=[None, self.args.bowler_action_size])
+        self.loss = tf.losses.softmax_cross_entropy(self.target_bowler, self.bowler)
 
         update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
         with tf.control_dependencies(update_ops):

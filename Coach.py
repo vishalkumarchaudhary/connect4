@@ -55,15 +55,17 @@ class Coach:
                 temp = int(episodeStep < self.args.tempThreshold)
 
                 print('.', end=" ")
-                pi = self.mcts.getActionProb(state, temp=temp)
+                shot_prob, bowler_prob = self.mcts.getActionProb(state, temp=temp)
 
-                shot_prob = self.getShotProbability(pi)
-                bowler_prob = self.getBowlerProbablity(pi)
+                # shot_prob = self.getShotProbability(pi)
+                # bowler_prob = self.getBowlerProbablity(pi)
 
                 trainExamples.append([state, shot_prob, bowler_prob])
 
-                action = np.random.choice(len(pi), p=pi)
-                state = self.game.getNextState(state, action)
+                shot = np.random.choice(len(shot_prob), p=shot_prob)
+                bowler = np.random.choice(len(bowler_prob), p=bowler_prob)
+
+                state = self.game.getNextState(state, bowler, shot)
 
                 r = self.game.getGameEnded(state)
 
@@ -116,9 +118,9 @@ class Coach:
                 # self.saveTrainExamples(i-1)
 
                 # shuffle examples before training
-                # trainExamples = []
-                # for e in self.trainExamplesHistory:
-                #     trainExamples.extend(e)
+                examples = []
+                for e in self.trainExamples:
+                    examples.extend(e)
                 # TODO: shuffle the examples
 
                 # shuffle(trainExamples)
@@ -131,7 +133,7 @@ class Coach:
 
     #             print(trainExamples ,np.shape(trainExamples))
 
-                loss = self.nnet.train(self.trainExamples)
+                loss = self.nnet.train(examples)
                 print(loss, "loss")
                 losses = np.load("losses_array.npy")
                 self.losses = np.hstack((losses, [[sum(loss[0])/len(loss[0])], [sum(loss[1])/len(loss[1])], [(sum(loss[0])+sum(loss[1]))/len(loss[0])] ]))
@@ -152,16 +154,15 @@ class Coach:
                 time.sleep(1.0)
                 print('\n')
                 np.save("losses_array.npy", self.losses)
-
+                # TODO: tournament play to be done
                 nmcts = MCTS(self.game, self.nnet, self.args)
 
                 print('PITTING AGAINST PREVIOUS VERSION')
     #             arena = Arena(lambda x: np.argmax(pmcts.getActionProb(x, temp=0)),
     #                           lambda x: np.argmax(nmcts.getActionProb(x, temp=0)), self.game)
 
-
-                arena = Arena(lambda x: np.argmax(pmcts.getActionProb( x, temp=0)),
-                              lambda x: np.argmax(nmcts.getActionProb( x, temp=0)), self.game)
+                arena = Arena(lambda x: np.argmax(pmcts.getActionProb(x, temp=0)),
+                              lambda x: np.argmax(nmcts.getActionProb(x, temp=0)), self.game)
                 pwins, nwins, draws = arena.playGames(self.args.arenaCompare)
 
                 print('NEW/PREV WINS : %d / %d ; DRAWS : %d' % (nwins, pwins, draws))

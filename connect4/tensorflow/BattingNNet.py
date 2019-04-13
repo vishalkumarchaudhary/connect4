@@ -27,12 +27,12 @@ class BattingNNet:
             hidden2 = Dropout(Dense(hidden1, 4*args.input_size, Relu), .4)
             hidden3 = Dropout(Dense(hidden2, 2*args.input_size, Relu), .2)
             self.shot = Dense(hidden3, args.batsman_action_size, Sigmoid)
-            # self.calculate_loss()
+            self.calculate_loss()
 
     def calculate_loss(self):
 
-        self.target_action = tf.placeholder(tf.float32, shape=[None, self.args.batsman_action_size])
-        self.loss = tf.losses.softmax_cross_entropy(self.target_action, self.shot)
+        self.target_shot = tf.placeholder(tf.float32, shape=[None, self.args.batsman_action_size])
+        self.loss = tf.losses.softmax_cross_entropy(self.target_shot, self.shot)
 
         update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
         with tf.control_dependencies(update_ops):

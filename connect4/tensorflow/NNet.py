@@ -19,7 +19,7 @@ args = dotdict({
     'lr': 0.001,
     'dropout': 0.3,
     'epochs': 2,
-    'batch_size': 32,
+    'batch_size': 4,
     'num_channels': 512,
     'input_size': 8,
     'bowler_action_size': 5,
@@ -66,9 +66,9 @@ class NNetWrapper(NeuralNet):
                 states, batting_action, bowling_action = list(zip(*[examples[i] for i in sample_ids]))
 
                 # predict and compute gradient and do SGD step
-                batting_dict = {self.battingNNet.input: states, self.battingNNet.target: batting_action,
+                batting_dict = {self.battingNNet.input: states, self.battingNNet.target_shot: batting_action,
                                 self.battingNNet.isTraining: True}
-                bowling_dict = {self.bowlingNNet.input: states, self.bowlingNNet.target: bowling_action,
+                bowling_dict = {self.bowlingNNet.input: states, self.bowlingNNet.target_bowler: bowling_action,
                                 self.bowlingNNet.isTraining: True}
 
                 # measure data loading time
@@ -93,7 +93,7 @@ class NNetWrapper(NeuralNet):
             bar.finish()
         return losses
 
-    def predict(self, state):
+    def predictshot(self, state):
         """
         board: np array with board
         """
@@ -109,11 +109,35 @@ class NNetWrapper(NeuralNet):
         #                                          self.bowlingNNet.input: state})
         shots = self.battingSess.run(self.battingNNet.shot, feed_dict={self.battingNNet.input: state})
         bowler = self.bowlingSess.run(self.bowlingNNet.bowler, feed_dict={self.bowlingNNet.input: state})
-        print("action space of MCTS is ",len((shots.T * bowler).flatten()))
-        print('PREDICTION TIME TAKEN : {0:03f}'.format(time.time()-start))
+
+        # print('PREDICTION TIME TAKEN : {0:03f}'.format(time.time()-start))
         runs, _ = self.game.getReward(self.game.wicket_in_hand-9,np.argmax(bowler), np.argmax(shots))
 
-        return (shots.T * bowler).flatten(), runs
+        # return (shots.T * bowler).flatten(), runs
+        return shots[0], runs
+
+    def predictBowler(self, state):
+        """
+        board: np array with board
+        """
+        # timing
+        start = time.time()
+
+        # preparing input
+        state = state[np.newaxis, :]
+
+        # # run
+        # shots, bowler = self.sess.run([self.battingNNet.shot, self.bowlingNNet.bowler],
+        #                               feed_dict={self.battingNNet.input: state,
+        #                                          self.bowlingNNet.input: state})
+        shots = self.battingSess.run(self.battingNNet.shot, feed_dict={self.battingNNet.input: state})
+        bowler = self.bowlingSess.run(self.bowlingNNet.bowler, feed_dict={self.bowlingNNet.input: state})
+        # print("action space of MCTS is ", len((shots.T * bowler).flatten()))
+        # print('PREDICTION TIME TAKEN : {0:03f}'.format(time.time() - start))
+        runs, _ = self.game.getReward(self.game.wicket_in_hand - 9, np.argmax(bowler), np.argmax(shots))
+
+        # return (shots.T * bowler).flatten(), runs
+        return bowler[0], runs
 
     def save_checkpoint(self, folder='checkpoint', filename='checkpoint.pth.tar'):
         filepath = os.path.join(folder, filename)
@@ -124,16 +148,26 @@ class NNetWrapper(NeuralNet):
             print("Checkpoint Directory exists! ")
 
         if self.saver == None:
-            self.saver = tf.train.Saver(self.nnet.graph.get_collection('variables'))
+            self.battingSaver = tf.train.Saver(self.battingNNet.graph.get_collection('variables'))
+            self.bowlingSaver = tf.train.Saver(self.bowlingNNet.graph.get_collection("variables"))
         with self.battingNNet.graph.as_default():
-            self.saver.save(self.sess, filepath)
+            self.battingSaver.save(self.battingSess, filepath + 'batting')
+        with self.bowlingNNet.graph.as_default():
+            self.bowlingSaver.save(self.bowlingSess, filepath + 'bowling')
 
     def load_checkpoint(self, folder='checkpoint', filename='checkpoint.pth.tar'):
         filepath = os.path.join(folder, filename)
-        if not os.path.exists(filepath + '.meta'):
+        if not os.path.exists(filepath+'batting' + '.meta'):
             raise("No model in path {}".format(filepath))
         # TODO: pass the neural network as argument
+        with self.battingNNet.graph.as_default():
+            self.battingSaver = tf.train.Saver()
+            self.battingSaver.restore(self.battingSess, filepath + 'batting')
 
-        with self.nnet.graph.as_default():
-            self.saver = tf.train.Saver()
-            self.saver.restore(self.sess, filepath)
+        with self.bowlingNNet.graph.as_default():
+            self.bowlingSaver = tf.train.Saver()
+            self.bowlingSaver.restore(self.bowlingSess, filepath + 'bowling')
+
+        # with self.nnet.graph.as_default():
+        #     self.saver = tf.train.Saver()
+        #     self.saver.restore(self.sess, filepath)

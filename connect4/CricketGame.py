@@ -23,8 +23,8 @@ class CricketGame(Game):
         self.bowler_action_size = 5
         self.batsman_action_size = 5
         self.state = np.asarray([self.run_score, self.wicket_in_hand, self.overs_left,
-                                self.left_overs_bowler1, self.left_overs_bowler2, self.left_overs_bowler3,
-                                self.left_overs_bowler4, self.left_overs_bowler5])
+                                 self.left_overs_bowler1, self.left_overs_bowler2, self.left_overs_bowler3,
+                                 self.left_overs_bowler4, self.left_overs_bowler5])
 
     def getInitBoard(self):
         return self.state
@@ -36,10 +36,14 @@ class CricketGame(Game):
         pass
 
     def getActionSize(self):
-        return self.batsman_action_size * self.bowler_action_size
+        # TODO: Change this function name and corresponding things
+        return self.batsman_action_size
 
     def getBatsmanActionSize(self):
         return self.batsman_action_size
+
+    def getBowlerValidMoves(self, state):
+        return [state[-5] > 0, state[-4] > 0, state[-3] > 0, state[-2] > 0, state[-1] > 0]
 
     def getBowlerActionSize(self):
         return self.bowler_action_size
@@ -47,11 +51,9 @@ class CricketGame(Game):
     def stringRepresentation(self, state):
         return str(state)
 
-    def getNextState(self, state, action):
+    def getNextState(self, state, bowler, shot):
         """Returns a copy of the board with updated move, original board is unmodified."""
         batsman = int(state[1]-9)
-        bowler = int(action % 5)
-        shot = int(action/5)
         i = batsman
         score = [1,2,3,4,6]
         pw_min = np.zeros((5,5))
@@ -86,18 +88,22 @@ class CricketGame(Game):
                     runs = runs+p_factor*score[shot]
         bowlers_over = np.zeros((5,))
         bowlers_over[bowler] = 1
-        self.overs_left -= 1
-        self.run_score += runs
-        self.wicket_in_hand -= wicket
-        self.left_overs_bowler1 -= bowlers_over[0]
-        self.left_overs_bowler2 -= bowlers_over[1]
-        self.left_overs_bowler3 -= bowlers_over[2]
-        self.left_overs_bowler4 -= bowlers_over[3]
-        self.left_overs_bowler5 -= bowlers_over[4]
+        return np.asarray([state[0] + runs, state[1] - wicket, state[2]-1, state[3]-bowlers_over[0],
+                state[4]-bowlers_over[1], state[5]-bowlers_over[2], state[6]-bowlers_over[3],
+                state[7]-bowlers_over[4]])
 
-        return np.asarray([self.run_score, self.wicket_in_hand, self.overs_left,
-                           self.left_overs_bowler1, self.left_overs_bowler2, self.left_overs_bowler3,
-                           self.left_overs_bowler4, self.left_overs_bowler5])
+        # self.overs_left -= 1
+        # self.run_score += runs
+        # self.wicket_in_hand -= wicket
+        # self.left_overs_bowler1 -= bowlers_over[0]
+        # self.left_overs_bowler2 -= bowlers_over[1]
+        # self.left_overs_bowler3 -= bowlers_over[2]
+        # self.left_overs_bowler4 -= bowlers_over[3]
+        # self.left_overs_bowler5 -= bowlers_over[4]
+
+        # return np.asarray([self.run_score, self.wicket_in_hand, self.overs_left,
+        #                    self.left_overs_bowler1, self.left_overs_bowler2, self.left_overs_bowler3,
+        #                    self.left_overs_bowler4, self.left_overs_bowler5])
 
     def getReward(self, batsman, bowler, shot):
         i = batsman
@@ -138,17 +144,19 @@ class CricketGame(Game):
         return [1]*self.getActionSize()
 
     # TODO: fix the reward function for both batsman and bowler
-    def getGameEnded(self, state, player="Batsman"):
-        if state[1] <= 0 or state[2] <= 0:#or state[3] <= 0 or state[4] <= 0 or state[5] <= 0 or state[6] <= 0 or state[7] <= 0:
-            if player == 'Batsman':
-                return self.run_score
-            elif player == 'Bowler':
-                return -self.run_score
+    def getGameEnded(self, state, player="batsman"):
+        if state is not None:
+            if state[1] <= 0 or state[2] <= 0:#or state[3] <= 0 or state[4] <= 0 or state[5] <= 0 or state[6] <= 0 or state[7] <= 0:
+                if player == 'batsman':
+                    return state[0]
+                elif player == 'bowler':
+                    return -state[0]
+                else:
+                    raise ValueError('Unexpected winstate found: ')
             else:
-                raise ValueError('Unexpected winstate found: ')
-        else:
-            # 0 used to represent unfinished game.
-            return 0
+                # 0 used to represent unfinished game.
+                return 0
+        return 0
 
     def display(self):
         print(" -----------------------")
