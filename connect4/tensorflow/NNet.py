@@ -3,9 +3,7 @@ import shutil
 import time
 import random
 import numpy as np
-import math
 import sys
-sys.path.append('../../')
 from utils import *
 from pytorch_classification.utils import Bar, AverageMeter
 from NeuralNet import NeuralNet
@@ -15,6 +13,7 @@ from .Connect4NNet import Connect4NNet as onnet
 from .BattingNNet import BattingNNet as battingNNet 
 from .BowlingNNet import BowlingNNet as bowlingNNet 
 
+sys.path.append('../../')
 
 args = dotdict({
     'lr': 0.001,
@@ -22,9 +21,9 @@ args = dotdict({
     'epochs': 2,
     'batch_size': 32,
     'num_channels': 512,
-    'input_size' : 8,
-    'bowler_action_size' : 6 ,
-    'batsman_action_size' : 5
+    'input_size': 8,
+    'bowler_action_size': 5,
+    'batsman_action_size': 5
 
 
 })
@@ -35,13 +34,15 @@ args = dotdict({
 class NNetWrapper(NeuralNet):
     def __init__(self, game):
         self.game = game
-        self.battingNNet = battingNNet()
-        self.bowlingNNet = bowlingNNet()
-        self.sess = tf.Session(graph=self.nnet.graph)
+        self.battingNNet = battingNNet(args)
+        self.bowlingNNet = bowlingNNet(args)
+        self.battingSess = tf.Session(graph=self.battingNNet.graph)
+        self.bowlingSess = tf.Session(graph=self.bowlingNNet.graph)
         self.saver = None
         with tf.Session() as temp_sess:
             temp_sess.run(tf.global_variables_initializer())
-        self.sess.run(tf.variables_initializer(self.nnet.graph.get_collection('variables')))
+        self.battingSess.run(tf.variables_initializer(self.battingNNet.graph.get_collection('variables')))
+        self.bowlingSess.run(tf.variables_initializer(self.bowlingNNet.graph.get_collection("variables")))
 
     def train(self, examples):
         """
@@ -74,10 +75,10 @@ class NNetWrapper(NeuralNet):
                 data_time.update(time.time() - end)
 
                 # record loss
-                self.sess.run(self.battingNNet.shot, feed_dict=batting_dict)
-                self.sess.run(self.bowlingNNet.bowler, feed_dict=bowling_dict)
-                batting_loss = self.sess.run(self.battingNNet.loss, feed_dict=batting_dict)
-                bowling_loss = self.sess.run(self.bowlingNNet.loss, feed_dict=bowling_dict)
+                self.battingSess.run(self.battingNNet.shot, feed_dict=batting_dict)
+                self.bowlingSess.run(self.bowlingNNet.bowler, feed_dict=bowling_dict)
+                batting_loss = self.battingSess.run(self.battingNNet.loss, feed_dict=batting_dict)
+                bowling_loss = self.bowlingSess.run(self.bowlingNNet.loss, feed_dict=bowling_dict)
                 
                 batting_action_loss.update(batting_loss, len(states))
                 bowling_action_loss.update(bowling_loss, len(states))
@@ -102,14 +103,15 @@ class NNetWrapper(NeuralNet):
         # preparing input
         state = state[np.newaxis, :]
 
-        # run
-        shots, bowler = self.sess.run([self.battingNNet.shot, self.bowlingNNet.bowler],
-                                      feed_dict={self.battingNNet.input: state,
-                                                 self.bowlingNNet.input: state})
-
+        # # run
+        # shots, bowler = self.sess.run([self.battingNNet.shot, self.bowlingNNet.bowler],
+        #                               feed_dict={self.battingNNet.input: state,
+        #                                          self.bowlingNNet.input: state})
+        shots = self.battingSess.run(self.battingNNet.shot, feed_dict={self.battingNNet.input: state})
+        bowler = self.bowlingSess.run(self.bowlingNNet.bowler, feed_dict={self.bowlingNNet.input: state})
         print("action space of MCTS is ",len((shots.T * bowler).flatten()))
         print('PREDICTION TIME TAKEN : {0:03f}'.format(time.time()-start))
-        runs, _ = self.game.getReward(self.game.wicket_in_hand-9, self.game.bowler, np.argmax(shots))
+        runs, _ = self.game.getReward(self.game.wicket_in_hand-9,np.argmax(bowler), np.argmax(shots))
 
         return (shots.T * bowler).flatten(), runs
 

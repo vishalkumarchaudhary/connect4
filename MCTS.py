@@ -8,7 +8,8 @@ class MCTS():
     This class handles the MCTS tree.
     """
 
-    def __init__(self,game, nnet, args):
+    def __init__(self, game, nnet, args):
+        self.game = game
         self.nnet = nnet
         self.args = args
         self.Qsa = {}       # stores Q values for s,a (as defined in the paper)
@@ -70,7 +71,7 @@ class MCTS():
         # selecting from the previous generated data if already visited
         # if s is in win state
         if s not in self.Es:
-            self.Es[s] = self.game.getGameEnded(state, 1)
+            self.Es[s] = self.game.getGameEnded(state)
         if self.Es[s] != 0:
             # terminal node
             return self.Es[s]
@@ -79,7 +80,7 @@ class MCTS():
         if s not in self.Ps:
             # leaf node
             self.Ps[s], v = self.nnet.predict(state)
-            valids = self.game.getValidMoves(state, 1)
+            valids = self.game.getValidMoves(state)
             self.Ps[s] = self.Ps[s]*valids      # masking invalid moves
             sum_Ps_s = np.sum(self.Ps[s])
             if sum_Ps_s > 0:

@@ -20,12 +20,12 @@ class Coach:
         This class executes the self-play + learning. It uses the functions defined
         in Game and NeuralNet. args are specified in main.py.
         """
-        def __init__(self,game, nnet, args):
+        def __init__(self, game, nnet, args):
             self.game = game
             self.nnet = nnet
             self.pnet = self.nnet.__class__(game)  # the competitor network
             self.args = args
-            self.mcts = MCTS(self.nnet, self.args)
+            self.mcts = MCTS(self.game, self.nnet, self.args)
 
             # history of examples from args.numItersForTrainExamplesHistory latest iterations
             self.trainExamples = []
@@ -69,8 +69,6 @@ class Coach:
 
                 if r == 0 or state[1] <= 0 or state[2] <= 0:
                     return trainExamples
-
-
 
         def learn(self):
             """
@@ -134,7 +132,7 @@ class Coach:
     #             print(trainExamples ,np.shape(trainExamples))
 
                 loss = self.nnet.train(self.trainExamples)
-                print(loss, "loosss")
+                print(loss, "loss")
                 losses = np.load("losses_array.npy")
                 self.losses = np.hstack((losses, [[sum(loss[0])/len(loss[0])], [sum(loss[1])/len(loss[1])], [(sum(loss[0])+sum(loss[1]))/len(loss[0])] ]))
 
@@ -153,9 +151,7 @@ class Coach:
                 pl.gcf().clear()
                 time.sleep(1.0)
                 print('\n')
-                np.save("losses_array.npy",self.losses)
-
-
+                np.save("losses_array.npy", self.losses)
 
                 nmcts = MCTS(self.game, self.nnet, self.args)
 

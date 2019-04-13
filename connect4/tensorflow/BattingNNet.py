@@ -29,7 +29,6 @@ class BattingNNet:
             self.shot = Dense(hidden3, args.batsman_action_size, Sigmoid)
             # self.calculate_loss()
 
-
     def calculate_loss(self):
 
         self.target_action = tf.placeholder(tf.float32, shape=[None, self.args.batsman_action_size])
