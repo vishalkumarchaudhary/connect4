@@ -197,7 +197,7 @@ class MCTS():
                 print("All valid moves were masked, do workaround.")
                 self.Ps[(s, shot)] = self.Ps[(s, shot)] + valids
                 self.Ps[(s, shot)] /= np.sum(self.Ps[(s, shot)])
-                print(self.Ps[(s, shot)], "uniform distribution line 100 MCTS.py")
+                print(self.Ps[(s, shot)], "uniform distribution line 200 MCTS.py")
             self.Vs[(s, shot)] = valids
             self.Ns[(s, shot)] = 0
             return -v
