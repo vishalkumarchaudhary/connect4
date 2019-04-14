@@ -48,7 +48,7 @@ class Arena():
             valids = self.game.getBowlerValidMoves(state)
 
             if valids[np.argmax(bowler_p)] == 0:
-                print(bowler_p, state, valids)
+                print("From 51 of Arena.py", bowler_p, state, valids)
                 break
             #     assert valids[action] > 0
             state = self.game.getNextState(state, np.argmax(bowler_p), np.argmax(shot_p))
@@ -57,24 +57,25 @@ class Arena():
             print("Game over: Turn ", str(it), "Result ", str(self.game.getGameEnded(state, 1)))
             self.display(state)
         run1 = self.game.getGameEnded(state)
-
+        print("First network successfully played")
         curPlayer = -1
         state = self.game.getInitBoard()
         it = 0
-        while self.game.getGameEnded(state) == 0:
+        while self.game.getGameEnded(state) == 0 and np.sum(self.game.getBowlerValidMoves(state)) > 0:
             it += 1
             if verbose:
                 assert (self.display)
                 print("Turn ", str(it), "Player ", str(curPlayer))
                 self.display(state)
-            action = players[curPlayer + 1](state)
+            shot_p, bowler_p = players[curPlayer + 1](state)
 
             valids = self.game.getBowlerValidMoves(state)
 
-            # if valids[action] == 0:
-            #     print(action)
+            if valids[np.argmax(bowler_p)] == 0:
+                print("From 51 of Arena.py", bowler_p, state, valids)
+                break
             #     assert valids[action] > 0
-            state = self.game.getNextState(state, np.argmax(action[0]), np.argmax(action[1]))
+            state = self.game.getNextState(state, np.argmax(bowler_p), np.argmax(shot_p))
         if verbose:
             assert (self.display)
             print("Game over: Turn ", str(it), "Result ", str(self.game.getGameEnded(state, 1)))
@@ -105,9 +106,9 @@ class Arena():
             draws = 0
             for _ in range(num):
                 gameResult = self.playGame(verbose=verbose)
-                if gameResult > 0:
+                if gameResult is True:
                     oneWon+=1
-                elif gameResult == 0:
+                elif gameResult is False:
                     twoWon+=1
                 else:
                     draws+=1
@@ -123,9 +124,9 @@ class Arena():
 
             for _ in range(num):
                 gameResult = self.playGame(verbose=verbose)
-                if gameResult==-1:
+                if gameResult is False:
                     oneWon+=1
-                elif gameResult==1:
+                elif gameResult is True:
                     twoWon+=1
                 else:
                     draws+=1
