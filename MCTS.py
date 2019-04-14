@@ -182,7 +182,7 @@ class MCTS():
         if (s, shot) not in self.Ps:
             # leaf node
             self.Ps[(s, shot)], v = self.nnet.predictBowler(state)
-            if()
+
             valids = self.game.getBowlerValidMoves(state)
             if np.sum(valids) ==0:
                 print("ola",state)
