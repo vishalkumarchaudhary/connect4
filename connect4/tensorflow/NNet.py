@@ -113,8 +113,7 @@ class NNetWrapper(NeuralNet):
         # print('PREDICTION TIME TAKEN : {0:03f}'.format(time.time()-start))
         runs, _ = self.game.getReward(self.game.wicket_in_hand-9,np.argmax(bowler), np.argmax(shots))
         if (np.sum(shots) == 0):
-            print("batting probab ", shots[0], "State is ", state)
-        # return (shots.T * bowler).flatten(), runs
+            print("batting probab in NNet.py", shots[0], "State is ", state)
         return shots[0], runs
 
     def predictBowler(self, state):
@@ -137,8 +136,7 @@ class NNetWrapper(NeuralNet):
         # print('PREDICTION TIME TAKEN : {0:03f}'.format(time.time() - start))
         runs, _ = self.game.getReward(self.game.wicket_in_hand - 9, np.argmax(bowler), np.argmax(shots))
         if(np.sum(bowler)==0):
-            print("bowler probab ", bowler[0],"State is ",state)
-        # return (shots.T * bowler).flatten(), runs
+            print("bowler probab in NNet.py", bowler[0],"State is ",state)
         return bowler[0], runs
 
     def save_checkpoint(self, folder='checkpoint', filename='checkpoint.pth.tar'):
