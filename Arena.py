@@ -106,9 +106,9 @@ class Arena():
             draws = 0
             for _ in range(num):
                 gameResult = self.playGame(verbose=verbose)
-                if gameResult is True:
+                if gameResult == True:
                     oneWon+=1
-                elif gameResult is False:
+                elif gameResult == False:
                     twoWon+=1
                 else:
                     draws+=1
@@ -124,9 +124,9 @@ class Arena():
 
             for _ in range(num):
                 gameResult = self.playGame(verbose=verbose)
-                if gameResult is False:
+                if gameResult == False:
                     oneWon+=1
-                elif gameResult is True:
+                elif gameResult == True:
                     twoWon+=1
                 else:
                     draws+=1
