@@ -188,7 +188,9 @@ class MCTS():
                       "action ", valids, "Bowler is being called")
             self.Ps[(s, shot)] = self.Ps[(s, shot)] * valids  # masking invalid moves
             sum_Ps_s = np.sum(self.Ps[(s, shot)])
-
+            if sum_Ps_s ==0 :
+                print("probab is ", self.Ps[(s, shot)], "sum probab is ", np.sum(self.Ps[(s, shot)]), "state is ", s,
+                      "action ", valids, "Bowler is being called after multiplication")
             if sum_Ps_s > 0:
                 self.Ps[(s, shot)] /= sum_Ps_s  # renormalize
             else:
