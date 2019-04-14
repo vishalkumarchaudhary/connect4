@@ -195,7 +195,8 @@ class MCTS():
                 # NB! All valid moves may be masked if either your NNet architecture is insufficient or you've get overfitting or something else.
                 # If you have got dozens or hundreds of these messages you should pay attention to your NNet and/or training process.
                 print("All valid moves were masked, do workaround.")
-                print("probab is ", self.Ps[(s, shot)], "sum probab is ", np.sum(self.Ps[(s, shot)]),"state is ", s)
+                print("probab is ", self.Ps[(s, shot)], "sum probab is ", np.sum(self.Ps[(s, shot)]),"state is ", s,
+                      "action ", valids)
                 self.Ps[(s, shot)] = self.Ps[(s, shot)] + valids
                 self.Ps[(s, shot)] /= np.sum(self.Ps[(s, shot)])
                 print(self.Ps[(s, shot)], "uniform distribution line 200 MCTS.py")
