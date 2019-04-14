@@ -37,7 +37,7 @@ class Arena():
         curPlayer = 1
         state = self.game.getInitBoard()
         it = 0
-        while self.game.getGameEnded(state) == 0:
+        while self.game.getGameEnded(state) == 0 and np.sum(self.game.getBowlerValidMoves(state)) > 0:
             it += 1
             if verbose:
                 assert (self.display)
