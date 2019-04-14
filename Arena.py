@@ -43,14 +43,15 @@ class Arena():
                 assert (self.display)
                 print("Turn ", str(it), "Player ", str(curPlayer))
                 self.display(state)
-            action = players[curPlayer + 1](state)
+            shot_p, bowler_p = players[curPlayer + 1](state)
 
             valids = self.game.getBowlerValidMoves(state)
 
-            # if valids[action] == 0:
-            #     print(action)
+            if valids[np.argmax(bowler_p)] == 0:
+                print(bowler_p, state, valids)
+                break
             #     assert valids[action] > 0
-            state = self.game.getNextState(state, np.argmax(action[0]), np.argmax(action[1]))
+            state = self.game.getNextState(state, np.argmax(bowler_p), np.argmax(shot_p))
         if verbose:
             assert (self.display)
             print("Game over: Turn ", str(it), "Result ", str(self.game.getGameEnded(state, 1)))

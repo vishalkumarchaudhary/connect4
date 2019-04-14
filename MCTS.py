@@ -185,7 +185,7 @@ class MCTS():
             assert len(self.Ps[(s, shot)])==5
             valids = self.game.getBowlerValidMoves(state)
             if np.sum(valids) ==0:
-                print("ola",state,)
+                print("ola",state)
             self.Ps[(s, shot)] = self.Ps[(s, shot)] * valids  # masking invalid moves
             sum_Ps_s = np.sum(self.Ps[(s, shot)])
             if sum_Ps_s > 0:
