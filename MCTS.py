@@ -34,30 +34,28 @@ class MCTS():
             self.searchBatsman(state)
 
         s = self.game.stringRepresentation(state)
-        counts = [self.Nsa[(s,a)] if (s,a) in self.Nsa else 0 for a in range(self.game.getActionSize())]
+        counts = [self.Nsa[(s, a)] if (s, a) in self.Nsa else 0 for a in range(self.game.getActionSize())]
 
-        if temp==0:
+        if temp == 0:
             bestA = np.argmax(counts)
             shot_probability = [0]*len(counts)
             shot_probability[bestA] = 1
-            return shot_probability
-
-        counts = [x**(1./temp) for x in counts]
-        shot_probability = [x/float(sum(counts)) for x in counts]
+        else:
+            counts = [x**(1./temp) for x in counts]
+            shot_probability = [x/float(sum(counts)) for x in counts]
 
         # calculating which bowler's probability
         counts = [0]*self.game.getActionSize()
         for i in range(self.game.getActionSize()):
-            counts[i] = sum([self.Nsa[((s, i), a)] if ((s, i), i) in self.Nsa else 0 for a in range(self.game.getActionSize())])
+            counts[i] = sum([self.Nsa[((s, a), i)] if ((s, a), i) in self.Nsa else 0 for a in range(self.game.getActionSize())])
 
         if temp == 0:
             bestA = np.argmax(counts)
-            probs = [0] * len(counts)
-            probs[bestA] = 1
-            return probs
-
-        counts = [x ** (1. / temp) for x in counts]
-        bowler_probability = [x / float(sum(counts)) for x in counts]
+            bowler_probability = [0] * len(counts)
+            bowler_probability[bestA] = 1
+        else:
+            counts = [x ** (1. / temp) for x in counts]
+            bowler_probability = [x / float(sum(counts)) for x in counts]
 
         # TODO: Probability distribution should be more diverse
         return shot_probability, bowler_probability
