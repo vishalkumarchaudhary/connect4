@@ -22,9 +22,7 @@ class CricketGame(Game):
         self.left_overs_bowler5 = left_overs_bowler5
         self.bowler_action_size = 5
         self.batsman_action_size = 5
-        self.state = np.asarray([self.run_score, self.wicket_in_hand, self.overs_left,
-                                 self.left_overs_bowler1, self.left_overs_bowler2, self.left_overs_bowler3,
-                                 self.left_overs_bowler4, self.left_overs_bowler5])
+        self.state = np.asarray([self.run_score, self.wicket_in_hand, self.overs_left,self.left_overs_bowler1, self.left_overs_bowler2, self.left_overs_bowler3,self.left_overs_bowler4, self.left_overs_bowler5])
 
     def getInitBoard(self):
         return self.state
