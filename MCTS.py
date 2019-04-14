@@ -185,7 +185,7 @@ class MCTS():
             valids = self.game.getBowlerValidMoves(state)
             if np.sum(self.Ps[(s, shot)])==0 :
                 print("probab is ", self.Ps[(s, shot)], "sum probab is ", np.sum(self.Ps[(s, shot)]), "state is ", s,
-                      "action ", valids)
+                      "action ", valids, "Bowler is being called")
             self.Ps[(s, shot)] = self.Ps[(s, shot)] * valids  # masking invalid moves
             sum_Ps_s = np.sum(self.Ps[(s, shot)])
 
