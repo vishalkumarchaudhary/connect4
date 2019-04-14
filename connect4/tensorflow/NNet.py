@@ -112,7 +112,8 @@ class NNetWrapper(NeuralNet):
 
         # print('PREDICTION TIME TAKEN : {0:03f}'.format(time.time()-start))
         runs, _ = self.game.getReward(self.game.wicket_in_hand-9,np.argmax(bowler), np.argmax(shots))
-
+        if (np.sum(bowler) == 0):
+            print("batting probab ", bowler[0], "State is ", state)
         # return (shots.T * bowler).flatten(), runs
         return shots[0], runs
 
