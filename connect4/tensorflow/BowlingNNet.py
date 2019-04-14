@@ -21,9 +21,10 @@ class BowlingNNet:
             self.input = tf.placeholder(tf.float32, shape=[None, args.input_size])
             self.dropout = tf.placeholder(tf.float32)
             self.isTraining = tf.placeholder(tf.bool, name="is_training")
+
             input1 = Dense(self.input, args.input_size, Relu)
             hidden1 = Dense(input1, 2*args.input_size, Relu)
-            hidden2 = Dropout(Dense(hidden1, 4*args.input_size, Relu), .4)
+            hidden2 = Dropout(Dense(hidden1, 4*args.input_size, Relu), .2)
             hidden3 = Dropout(Dense(hidden2, 2*args.input_size, Relu), .2)
             self.bowler = Dense(hidden3, args.bowler_action_size, Sigmoid)
 

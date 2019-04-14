@@ -9,12 +9,12 @@ import numpy as np
 print(time.time())
 args = dotdict({
     'numIters': 1000,
-    'numEps': 10,
+    'numEps': 50,
     'tempThreshold': 15,
     'updateThreshold': 0.5,
     'maxlenOfQueue': 200000,
-    'numMCTSSims': 100,
-    'arenaCompare': 10,
+    'numMCTSSims': 1000,
+    'arenaCompare': 5,
     'cpuct': 1,
 
     'checkpoint': './temp/',

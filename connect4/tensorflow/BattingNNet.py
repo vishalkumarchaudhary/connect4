@@ -23,10 +23,11 @@ class BattingNNet:
             self.isTraining = tf.placeholder(tf.bool, name="is_training")
 
             input1 = Dense(self.input, args.input_size, Relu)
-            hidden1 = Dense(input1,2*args.input_size, Relu)
-            hidden2 = Dropout(Dense(hidden1, 4*args.input_size, Relu), .4)
+            hidden1 = Dense(input1, 2*args.input_size, Relu)
+            hidden2 = Dropout(Dense(hidden1, 4*args.input_size, Relu), .2)
             hidden3 = Dropout(Dense(hidden2, 2*args.input_size, Relu), .2)
             self.shot = Dense(hidden3, args.batsman_action_size, Sigmoid)
+
             self.calculate_loss()
 
     def calculate_loss(self):
