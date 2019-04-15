@@ -9,8 +9,7 @@ from pytorch_classification.utils import Bar, AverageMeter
 from NeuralNet import NeuralNet
 
 import tensorflow as tf
-from .BattingNNet import BattingNNet as battingNNet 
-from .BowlingNNet import BowlingNNet as bowlingNNet 
+from .BatBowlNNet import BatBowlNN as net
 
 sys.path.append('../../')
 
@@ -33,15 +32,13 @@ args = dotdict({
 class NNetWrapper(NeuralNet):
     def __init__(self, game):
         self.game = game
-        self.battingNNet = battingNNet(args)
-        self.bowlingNNet = bowlingNNet(args)
-        self.battingSess = tf.Session(graph=self.battingNNet.graph)
-        self.bowlingSess = tf.Session(graph=self.bowlingNNet.graph)
+        self.NNet = net(args)
+
+        self.sess = tf.Session(graph=self.NNet.graph)
         self.saver = None
         with tf.Session() as temp_sess:
             temp_sess.run(tf.global_variables_initializer())
-        self.battingSess.run(tf.variables_initializer(self.battingNNet.graph.get_collection('variables')))
-        self.bowlingSess.run(tf.variables_initializer(self.bowlingNNet.graph.get_collection("variables")))
+        self.sess.run(tf.variables_initializer(self.NNet.graph.get_collection('variables')))
 
     def train(self, examples):
         """
@@ -65,20 +62,17 @@ class NNetWrapper(NeuralNet):
                 states, batting_action, bowling_action = list(zip(*[examples[i] for i in sample_ids]))
 
                 # predict and compute gradient and do SGD step
-                batting_dict = {self.battingNNet.input: states, self.battingNNet.target_shot: batting_action,
-                                self.battingNNet.isTraining: True}
-                bowling_dict = {self.bowlingNNet.input: states, self.bowlingNNet.target_bowler: bowling_action,
-                                self.bowlingNNet.isTraining: True}
+                _dict = {self.NNet.input: states, self.NNet.target_shot: batting_action,
+                         self.NNet.isTraining: True, self.NNet.target_bowler: bowling_action}
 
                 # measure data loading time
                 data_time.update(time.time() - end)
 
                 # record loss
-                self.battingSess.run(self.battingNNet.shot, feed_dict=batting_dict)
-                self.bowlingSess.run(self.bowlingNNet.bowler, feed_dict=bowling_dict)
-                _, batting_loss = self.battingSess.run([self.battingNNet.train_step, self.battingNNet.loss], feed_dict=batting_dict)
-                _, bowling_loss = self.bowlingSess.run([self.bowlingNNet.train_step, self.bowlingNNet.loss], feed_dict=bowling_dict)
-                
+                self.sess.run([self.NNet.shot,self.NNet.bowler], feed_dict=_dict)
+                _, _, batting_loss, bowling_loss = self.sess.run([self.NNet.batting_train_step, self.NNet.bowling_train_step,
+                                                                         self.NNet.batting_loss, self.NNet.bowling_loss], feed_dict=_dict)
+
                 batting_action_loss.update(batting_loss, len(states))
                 bowling_action_loss.update(bowling_loss, len(states))
 
@@ -106,8 +100,8 @@ class NNetWrapper(NeuralNet):
         # shots, bowler = self.sess.run([self.battingNNet.shot, self.bowlingNNet.bowler],
         #                               feed_dict={self.battingNNet.input: state,
         #                                          self.bowlingNNet.input: state})
-        shots = self.battingSess.run(self.battingNNet.shot, feed_dict={self.battingNNet.input: state})
-        bowler = self.bowlingSess.run(self.bowlingNNet.bowler, feed_dict={self.bowlingNNet.input: state})
+        shots = self.sess.run(self.NNet.shot, feed_dict={self.NNet.input: state})
+        bowler = self.sess.run(self.NNet.bowler, feed_dict={self.NNet.input: state})
 
         # print('PREDICTION TIME TAKEN : {0:03f}'.format(time.time()-start))
         runs, _ = self.game.getReward(self.game.wicket_in_hand-9,np.argmax(bowler), np.argmax(shots))
@@ -129,8 +123,8 @@ class NNetWrapper(NeuralNet):
         # shots, bowler = self.sess.run([self.battingNNet.shot, self.bowlingNNet.bowler],
         #                               feed_dict={self.battingNNet.input: state,
         #                                          self.bowlingNNet.input: state})
-        shots = self.battingSess.run(self.battingNNet.shot, feed_dict={self.battingNNet.input: state})
-        bowler = self.bowlingSess.run(self.bowlingNNet.bowler, feed_dict={self.bowlingNNet.input: state})
+        shots = self.sess.run(self.NNet.shot, feed_dict={self.NNet.input: state})
+        bowler = self.sess.run(self.NNet.bowler, feed_dict={self.NNet.input: state})
         # print("action space of MCTS is ", len((shots.T * bowler).flatten()))
         # print('PREDICTION TIME TAKEN : {0:03f}'.format(time.time() - start))
         runs, _ = self.game.getReward(self.game.wicket_in_hand - 9, np.argmax(bowler), np.argmax(shots))
@@ -147,25 +141,18 @@ class NNetWrapper(NeuralNet):
             print("Checkpoint Directory exists! ")
 
         if self.saver == None:
-            self.battingSaver = tf.train.Saver(self.battingNNet.graph.get_collection('variables'))
-            self.bowlingSaver = tf.train.Saver(self.bowlingNNet.graph.get_collection("variables"))
-        with self.battingNNet.graph.as_default():
-            self.battingSaver.save(self.battingSess, filepath + 'batting')
-        with self.bowlingNNet.graph.as_default():
-            self.bowlingSaver.save(self.bowlingSess, filepath + 'bowling')
+            self.saver = tf.train.Saver(self.NNet.graph.get_collection('variables'))
+        with self.NNet.graph.as_default():
+            self.saver.save(self.sess, filepath)
 
     def load_checkpoint(self, folder='checkpoint', filename='checkpoint.pth.tar'):
         filepath = os.path.join(folder, filename)
         if not os.path.exists(filepath+'batting' + '.meta'):
             raise("No model in path {}".format(filepath))
         # TODO: pass the neural network as argument
-        with self.battingNNet.graph.as_default():
-            self.battingSaver = tf.train.Saver()
-            self.battingSaver.restore(self.battingSess, filepath + 'batting')
-
-        with self.bowlingNNet.graph.as_default():
-            self.bowlingSaver = tf.train.Saver()
-            self.bowlingSaver.restore(self.bowlingSess, filepath + 'bowling')
+        with self.NNet.graph.as_default():
+            self.saver = tf.train.Saver()
+            self.saver.restore(self.sess, filepath)
 
         # with self.nnet.graph.as_default():
         #     self.saver = tf.train.Saver()
