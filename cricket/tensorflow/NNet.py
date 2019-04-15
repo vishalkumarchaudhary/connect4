@@ -9,7 +9,6 @@ from pytorch_classification.utils import Bar, AverageMeter
 from NeuralNet import NeuralNet
 
 import tensorflow as tf
-from .Connect4NNet import Connect4NNet as onnet
 from .BattingNNet import BattingNNet as battingNNet 
 from .BowlingNNet import BowlingNNet as bowlingNNet 
 

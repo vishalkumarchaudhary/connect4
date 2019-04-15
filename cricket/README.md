@@ -6,14 +6,14 @@ Neural network architecture was copy-pasted from the game of Othello, so could l
 To train a model for Connect4, update the imports in ```main.py``` to:
 ```python
 from Coach import Coach
-from connect4.Connect4Game import Connect4Game
-from connect4.tensorflow.NNet import NNetWrapper as nn
+from cricket.CricketGame import CricketGame
+from cricket.tensorflow.NNet import NNetWrapper as nn
 from utils import dotdict
 ```
 
 and the first line of ```__main__``` to
 ```python
-g = Connect4Game()
+g = CricketGame()
 ```
 
 Make similar changes to ```pit.py```.

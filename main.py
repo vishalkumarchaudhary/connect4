@@ -1,7 +1,7 @@
 # %%writefile main.py
 from Coach import Coach
-from connect4.CricketGame import CricketGame
-from connect4.tensorflow.NNet import NNetWrapper as nn
+from cricket.CricketGame import CricketGame
+from cricket.tensorflow.NNet import NNetWrapper as nn
 from utils import dotdict
 import time
 import numpy as np
@@ -28,9 +28,9 @@ args = dotdict({
 
 if __name__ == "__main__":
     
-    # game instantiating the game connect4 game
+    # game instantiating the game cricket game
     g = CricketGame()
-    # initialising neural network and the config of neural network is defined in connect4/tensorflow/NNet.py file
+    # initialising neural network and the config of neural network is defined in cricket/tensorflow/NNet.py file
     nnet = nn(g)
     print("**********************")
     print(args.load_folder_file[0], args.load_folder_file[1])
