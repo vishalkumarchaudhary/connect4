@@ -147,7 +147,7 @@ class NNetWrapper(NeuralNet):
 
     def load_checkpoint(self, folder='checkpoint', filename='checkpoint.pth.tar'):
         filepath = os.path.join(folder, filename)
-        if not os.path.exists(filepath+'batting' + '.meta'):
+        if not os.path.exists(filepath + '.meta'):
             raise("No model in path {}".format(filepath))
         # TODO: pass the neural network as argument
         with self.NNet.graph.as_default():
