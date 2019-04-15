@@ -76,8 +76,8 @@ class NNetWrapper(NeuralNet):
                 # record loss
                 self.battingSess.run(self.battingNNet.shot, feed_dict=batting_dict)
                 self.bowlingSess.run(self.bowlingNNet.bowler, feed_dict=bowling_dict)
-                batting_loss = self.battingSess.run(self.battingNNet.loss, feed_dict=batting_dict)
-                bowling_loss = self.bowlingSess.run(self.bowlingNNet.loss, feed_dict=bowling_dict)
+                _, batting_loss = self.battingSess.run([self.battingNNet.train_step, self.battingNNet.loss], feed_dict=batting_dict)
+                _, bowling_loss = self.bowlingSess.run([self.bowlingNNet.train_step, self.bowlingNNet.loss], feed_dict=bowling_dict)
                 
                 batting_action_loss.update(batting_loss, len(states))
                 bowling_action_loss.update(bowling_loss, len(states))
