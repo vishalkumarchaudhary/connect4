@@ -1,4 +1,4 @@
-# Connect4 implementation for Alpha Zero General
+# Cricket implementation for Alpha Zero General
 
 Alpha-zero general implementation of connect4.
 Neural network architecture was copy-pasted from the game of Othello, so could likely be improved.

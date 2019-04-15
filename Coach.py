@@ -123,7 +123,7 @@ class Coach:
                     examples.extend(e)
                 # TODO: shuffle the examples
 
-                # shuffle(trainExamples)
+                shuffle(examples)
                 # shuffle(np.transpose(trainExamples ,(0,2,3,1)))
 
                 # training new network, keeping a copy of the old one

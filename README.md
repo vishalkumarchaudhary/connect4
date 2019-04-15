@@ -13,16 +13,9 @@ Choose your framework and game in ```main.py```.
 # Overview
 connect4 folder is game related program file
 	
-	Connect4Game.py :
+	CricketGame.py :
 		it defines small function about the games like getting board states and action states , ending game function
 	
-	Connect4Logic.py :
-		It defines function for setting board , valid moves , how to move with action , function for state be in win.
-
-	Connect4Players.py :
-		This defines class each containing play function which decides how players is going to chose action. Like the players defines here are randomplayer , human player and onestep-lookahead-player
-
-
 
 ------------------------------------------------------------------
 	MCTS.py :
