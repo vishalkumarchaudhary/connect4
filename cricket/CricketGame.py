@@ -8,9 +8,9 @@ class CricketGame(Game):
     Connect4 Game class implementing the alpha-zero-general Game interface.
     """
 
-    def __init__(self, run_score = 0,wicket_in_hand = 10,overs_left = 50,
-                 left_overs_bowler1 = 10, left_overs_bowler2=10, left_overs_bowler3 = 10,
-                 left_overs_bowler4 = 10, left_overs_bowler5=10):
+    def __init__(self, run_score = 0,wicket_in_hand = 10,overs_left = 10,
+                 left_overs_bowler1 = 2, left_overs_bowler2=2, left_overs_bowler3 = 2,
+                 left_overs_bowler4 = 2, left_overs_bowler5=2):
         Game.__init__(self)
         self.run_score = run_score
         self.wicket_in_hand = wicket_in_hand
