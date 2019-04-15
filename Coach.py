@@ -144,9 +144,9 @@ class Coach:
                 print(self.losses)
 
                 plt.plot(self.losses[2], 'k')
-                plt.plot(self.losses[1], 'k:')
-                plt.plot(self.losses[0], 'k--')
-                plt.legend(['train_overall_loss', 'train_value_loss', 'train_policy_loss'], loc='lower left')
+                plt.plot(self.losses[1], 'b--')
+                plt.plot(self.losses[0], 'g--')
+                plt.legend(['total_loss', 'bowling_loss', 'Batting_loss'], loc='lower left')
 
                 display.clear_output(wait=True)
                 display.display(pl.gcf())
