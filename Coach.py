@@ -176,7 +176,8 @@ class Coach:
                 self.wins.append(pwins)
 
                 self.run = self.run + arena.runs
-
+                np.save("runs.npy", self.run)
+                np.save("wins.npy", self.wins)
                 print('NEW/PREV WINS : %d / %d ; DRAWS : %d' % (nwins, pwins, draws))
                 if pwins+nwins == 0 or float(nwins)/(pwins+nwins) < self.args.updateThreshold:
                     print('REJECTING NEW MODEL')
