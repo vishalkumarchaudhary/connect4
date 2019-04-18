@@ -31,6 +31,8 @@ class Coach:
             self.trainExamples = []
             self.skipFirstSelfPlay = False  # can be overriden in loadTrainExamples()
             self.losses = [[], [], []]
+            self.wins = []
+            self.run = []
 
         def executeEpisode(self):
             """
@@ -151,6 +153,7 @@ class Coach:
                 display.clear_output(wait=True)
                 display.display(pl.gcf())
                 pl.gcf().clear()
+                plt.show()
                 time.sleep(1.0)
                 print('\n')
                 np.save("losses_array.npy", self.losses)
@@ -164,6 +167,15 @@ class Coach:
                 arena = Arena(lambda x: pmcts.getActionProb(x, temp=0),
                               lambda x: nmcts.getActionProb(x, temp=0), self.game)
                 pwins, nwins, draws = arena.playGames(self.args.arenaCompare)
+                self.wins.append(pwins)
+
+                self.run = self.run + arena.runs
+
+                plt.plot(self.wins, 'b')
+                plt.show()
+
+                plt.plot(self.run, 'g')
+                plt.show()
 
                 print('NEW/PREV WINS : %d / %d ; DRAWS : %d' % (nwins, pwins, draws))
                 if pwins+nwins == 0 or float(nwins)/(pwins+nwins) < self.args.updateThreshold:

@@ -22,6 +22,8 @@ class Arena():
         self.player2 = player2
         self.game = game
         self.display = display
+        self.flag = 1
+        self.runs = []
 
     def playGame(self, verbose=False):
         """
@@ -81,6 +83,10 @@ class Arena():
             print("Game over: Turn ", str(it), "Result ", str(self.game.getGameEnded(state, 1)))
             self.display(state)
         run2 = self.game.getGameEnded(state)
+        if self.flag:
+            self.runs.append(run1)
+        else:
+            self.runs.append(run2)
         return run1 > run2
 
 
@@ -121,7 +127,7 @@ class Arena():
                 bar.next()
 
             self.player1, self.player2 = self.player2, self.player1
-
+            self.flag = 0
             for _ in range(num):
                 gameResult = self.playGame(verbose=verbose)
                 if gameResult == False:
