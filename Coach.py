@@ -154,6 +154,12 @@ class Coach:
                 display.display(pl.gcf())
                 pl.gcf().clear()
                 plt.show()
+                plt.plot(self.wins, 'b')
+                plt.show()
+
+                plt.plot(self.run, 'g')
+                plt.show()
+
                 time.sleep(1.0)
                 print('\n')
                 np.save("losses_array.npy", self.losses)
@@ -170,12 +176,6 @@ class Coach:
                 self.wins.append(pwins)
 
                 self.run = self.run + arena.runs
-
-                plt.plot(self.wins, 'b')
-                plt.show()
-
-                plt.plot(self.run, 'g')
-                plt.show()
 
                 print('NEW/PREV WINS : %d / %d ; DRAWS : %d' % (nwins, pwins, draws))
                 if pwins+nwins == 0 or float(nwins)/(pwins+nwins) < self.args.updateThreshold:
