@@ -82,14 +82,7 @@ class Coach:
             It then pits the new neural network against the old one and accepts it
             only if it wins >= updateThreshold fraction of games.
             """
-            p = []
-            for i in range(20):
-                run = (np.random.randint(50, 600, 1))[0]
-                wicket = (np.random.randint(0, 10, 1))[0]
-                overs = (np.random.randint(1, 4, 1))[0]
-                p.append(self.nnet.predictBowler(np.asarray([run, wicket, overs * 5, overs, overs, overs, overs, overs])))
 
-            np.save("probab.npy", p)
 
             for i in range(1, self.args.numIters+1):
                 # bookkeeping
@@ -196,13 +189,18 @@ class Coach:
                     self.nnet.save_checkpoint(folder=self.args.checkpoint, filename='best.pth.tar')
 
             p = []
+            s1 = []
             for i in range(20):
                 run = (np.random.randint(50, 600, 1))[0]
                 wicket = (np.random.randint(0, 10, 1))[0]
-                overs = (np.random.randint(1, 4))[0]
-                p.append(self.nnet.predictBowler([run, wicket, overs*5, overs, overs, overs, overs, overs]))
+                overs = (np.random.randint(1, 4, 1))[0]
+                st = [run, wicket, overs * 5, overs, overs, overs, overs, overs]
+                st2 = self.nnet.predictBowler(np.asarray(st))
+                p.append(list(st2[0]))
+                s1.append(st)
 
-            np.save("probab.npy",p)
+            np.save("probab.npy", p)
+            np.save("states.npy", s1)
 
 
 
