@@ -35,6 +35,8 @@ class NeuralNet():
             v: a float in [-1,1] that gives the value of the current board
         """
         pass
+    def predictBowler(self,board):
+        pass
 
     def save_checkpoint(self, folder, filename):
         """
