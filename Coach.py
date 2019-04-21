@@ -51,6 +51,7 @@ class Coach:
             trainExamples = []
             state = self.game.getInitBoard()
             episodeStep = 0
+
             while True:
                 episodeStep += 1
                 # canonicalBoard = self.game.getCanonicalForm(board, self.curPlayer)
@@ -82,7 +83,24 @@ class Coach:
             It then pits the new neural network against the old one and accepts it
             only if it wins >= updateThreshold fraction of games.
             """
+            p = []
+            s1 = []
+            for i in range(10):
+                run = (np.random.randint(50, 600, 1))[0]
+                wicket = (np.random.randint(0, 10, 1))[0]
+                b1 = (np.random.randint(1, 6, 1))[0]
+                b2 = (np.random.randint(1, 6, 1))[0]
+                b3 = (np.random.randint(1, 6, 1))[0]
+                b4 = (np.random.randint(1, 6, 1))[0]
+                b5 = (np.random.randint(1, 6, 1))[0]
+                overs = b1 + b2 + b3 + b4 + b5
+                st = [run, wicket, overs, b1, b2, b3, b4, b5]
+                st2 = self.nnet.predictBowler(np.asarray(st))
+                p.append(list(st2[0]))
+                s1.append(st)
 
+            np.save("probab.npy", p)
+            np.save("states.npy", s1)
 
             for i in range(1, self.args.numIters+1):
                 # bookkeeping
@@ -190,11 +208,16 @@ class Coach:
 
             p = []
             s1 = []
-            for i in range(20):
+            for i in range(50):
                 run = (np.random.randint(50, 600, 1))[0]
                 wicket = (np.random.randint(0, 10, 1))[0]
-                overs = (np.random.randint(1, 4, 1))[0]
-                st = [run, wicket, overs * 5, overs, overs, overs, overs, overs]
+                b1 = (np.random.randint(1, 6, 1))[0]
+                b2 = (np.random.randint(1, 6, 1))[0]
+                b3 = (np.random.randint(1, 6, 1))[0]
+                b4 = (np.random.randint(1, 6, 1))[0]
+                b5 = (np.random.randint(1, 6, 1))[0]
+                overs = b1+b2+b3+b4+b5
+                st = [run, wicket, overs, b1, b2, b3, b4, b5]
                 st2 = self.nnet.predictBowler(np.asarray(st))
                 p.append(list(st2[0]))
                 s1.append(st)
